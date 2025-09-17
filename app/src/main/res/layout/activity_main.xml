@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#F3FFFFFF"
+    android:padding="20dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:text="System"/>
+        <!-- ===== Ứng dụng đang chạy ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_rounded"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ứ.dụng đang chạy"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:stretchColumns="1">
+                <TableRow>
+                    <TextView
+                        android:id="@+id/tvRam"
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:textStyle="bold"
+                        android:text="loading"/>
+
+                    <TextView
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="RAM" />
+                </TableRow>
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Internal Storage"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvInternal"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading"/>
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Used Storage"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvUsed"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading"/>
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Bộ nhớ trống"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvFree"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading"/>
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
+
+        <!-- ===== CPU ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_rounded"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CPU"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:stretchColumns="1">
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="CPU"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvCpuArch"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Lõi"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvCpuCores"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="P.v đg hồ"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvCpuFreq"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
+
+        <!-- ===== Pin ===== -->
+
+        <!-- ===== System ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_rounded"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pin"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:stretchColumns="1">
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:text="Tình trạng sức khỏe"
+                        android:textColor="#000"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvHealth"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:text="Nhiệt độ"
+                        android:textColor="#000"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvTemp"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:text="Công suất hiện thời"
+                        android:textColor="#000"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvLevel"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:text="Tổng công suất"
+                        android:textColor="#000"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvCapacity"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:text="Điện áp"
+                        android:textColor="#000"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvVoltage"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:text="Tình trạng pin"
+                        android:textColor="#000"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:text="Tình trạng sạc"
+                        android:textColor="#000"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPlugged"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:text="Công nghệ pin"
+                        android:textColor="#000"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvTechnology"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_rounded"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="System"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:stretchColumns="1">
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Ph.bản Android"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvAndroidVersion"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="API Level"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvApiLevel"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Security Patch Level"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSecurityPatch"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Truy cập gốc"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvRootAccess"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Thời gian hoạt động"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvUptime"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
+
+        <!-- ===== Thiết bị ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_rounded"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thiết bị"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:stretchColumns="1">
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Manufacturer"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvManufacturer"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Model"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvModel"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Brand"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvBrand"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="ID Thiết bị Android"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvAndroidID"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
+
+        <!-- ===== Màn hình ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_rounded"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Màn hình"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:stretchColumns="1">
+
+                <TableRow>
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Độ phân giải"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvResolution"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Screen Density"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvDensity"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Kích thước màn hình"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvSizeInches"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:padding="4dp"
+                        android:textColor="#000"
+                        android:text="Tốc độ làm mới"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/tvRefreshRate"
+                        android:gravity="end"
+                        android:padding="4dp"
+                        android:text="loading" />
+                </TableRow>
+            </TableLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_rounded"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp"
+            android:paddingTop="4dp">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="1">
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Máy ảnh"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_marginEnd="16dp"/>
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/cameraToggleGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="true"
+                        app:selectionRequired="true"
+                        android:layout_gravity="right"
+                        app:checkedButton="@id/btnRear">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnRear"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/CameraToggleButton"
+                            android:text="Phía sau"
+                            android:textSize="13dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFront"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/CameraToggleButton"
+                            android:text="Phía trước"
+                            android:textSize="13dp"/>
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+                </TableRow>
+
+            </TableLayout>
+            <FrameLayout
+                android:id="@+id/frCamera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/txtPixelCamera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Có bao nhiêu pixel của máy ảnh?"
+                android:textColor="#07570A"
+                android:textSize="14sp" />
+
+
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

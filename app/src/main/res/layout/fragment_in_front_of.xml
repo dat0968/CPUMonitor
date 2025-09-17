@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragment.InFrontOfFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@android:color/white">
+
+        <!-- Dòng Máy ảnh -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Máy ảnh trước"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:paddingStart="0dp" />
+
+            <TextView
+                android:id="@+id/txt_mega_pixels"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(Loading) Mega Pixels"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Dòng Kích thước mảng điểm ảnh -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Kích thước mảng điểm ảnh"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:paddingStart="0dp" />
+
+            <TextView
+                android:id="@+id/txt_pixel_array_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading x Loading"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Dòng Kích cỡ cảm biến -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Kích cỡ cảm biến"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:paddingStart="0dp" />
+
+            <TextView
+                android:id="@+id/txt_sensor_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading x Loading"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Dòng Độ dài tiêu cự -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Độ dài tiêu cự"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:paddingStart="0dp" />
+
+            <TextView
+                android:id="@+id/txt_focal_length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading mm"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Dòng Hướng -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Hướng"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:paddingStart="0dp" />
+
+            <TextView
+                android:id="@+id/txt_orientation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading deg"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>
