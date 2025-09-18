@@ -1,0 +1,41 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:layout_columnWeight="1"
+    android:orientation="vertical"
+    android:background="@drawable/bg_rounded"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/txtCpuTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CPU 0"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"/>
+
+    <TextView
+        android:id="@+id/txtCpuClock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tốc độ: --"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/txtCpuMax"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tối đa: --"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/txtCpuUsage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-- %"
+        android:textColor="#2196F3"
+        android:textStyle="bold"
+        android:textSize="14sp"/>
+</LinearLayout>

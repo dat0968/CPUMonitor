@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F3FFFFFF"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvLevel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:text="Loading %" />
+            <TableLayout
+                android:background="#C3FFC4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*">
+
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+
+                    <!-- Cột 1: Nhiệt độ -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <!-- Giá trị -->
+                        <TextView
+                            android:id="@+id/tvTemp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Loading"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="#000"/>
+
+                        <!-- Tiêu đề -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nhiệt độ"
+                            android:textSize="14sp"
+                            android:textColor="#555"/>
+                    </LinearLayout>
+
+                    <!-- Cột 2: Thời gian còn lại -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"/>
+
+                    <!-- Cột 3: Tình trạng sức khỏe -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/tvHealth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Loading"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="#000"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tình trạng sức khỏe"
+                            android:textSize="14sp"
+                            android:textColor="#555"/>
+                    </LinearLayout>
+
+                </TableRow>
+            </TableLayout>
+            <!-- Khung chứa thông tin PIN -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_rounded"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:stretchColumns="1">
+
+                    <TableRow>
+                        <TextView
+                            android:padding="4dp"
+                            android:textColor="#000"
+                            android:text="Tổng công suất"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvCapacity"
+                            android:gravity="end"
+                            android:padding="4dp"
+                            android:text="loading" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:padding="4dp"
+                            android:textColor="#000"
+                            android:text="Điện áp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvVoltage"
+                            android:gravity="end"
+                            android:padding="4dp"
+                            android:text="loading" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:padding="4dp"
+                            android:textColor="#000"
+                            android:text="Tình trạng pin"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvStatus"
+                            android:gravity="end"
+                            android:padding="4dp"
+                            android:text="loading" />
+                    </TableRow>
+
+                </TableLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_rounded"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:stretchColumns="1">
+
+                    <TableRow>
+                        <TextView
+                            android:padding="4dp"
+                            android:textColor="#000"
+                            android:text="Nhiệt độ"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/txtTemperatureAVG"
+                            android:gravity="end"
+                            android:padding="4dp"
+                            android:text="Avg loading" />
+                    </TableRow>
+                </TableLayout>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_rounded"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:stretchColumns="1">
+
+                    <TableRow>
+                        <TextView
+                            android:padding="4dp"
+                            android:textColor="#000"
+                            android:text="Battery Level(24 Hour)"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/txtBatteryLevelAVG"
+                            android:gravity="end"
+                            android:padding="4dp"
+                            android:text="Avg loading" />
+                    </TableRow>
+                </TableLayout>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_rounded"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="N/A ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin"/>
+
+                <TableLayout
+                    android:id="@+id/tblApps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

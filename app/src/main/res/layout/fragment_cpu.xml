@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F3FFFFFF"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtpercentCPU"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="Loading %" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/black"
+                android:text="Sử dụng CPU" />
+
+            <!-- Khung chứa thông tin CPU -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_rounded"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:stretchColumns="1">
+
+                    <TableRow>
+                        <TextView
+                            android:padding="4dp"
+                            android:textColor="#000"
+                            android:text="Model"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/txtModel"
+                            android:gravity="end"
+                            android:padding="4dp"
+                            android:text="loading" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:padding="4dp"
+                            android:textColor="#000"
+                            android:text="Lõi"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/txtLoi"
+                            android:gravity="end"
+                            android:padding="4dp"
+                            android:text="loading" />
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:padding="4dp"
+                            android:textColor="#000"
+                            android:text="P.v đg hồ"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/txtClock"
+                            android:gravity="end"
+                            android:padding="4dp"
+                            android:text="loading" />
+                    </TableRow>
+
+                </TableLayout>
+            </LinearLayout>
+
+            <!-- Grid hiển thị chi tiết CPU (nếu cần) -->
+            <GridLayout
+                android:id="@+id/gridCpu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:useDefaultMargins="true" />
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
