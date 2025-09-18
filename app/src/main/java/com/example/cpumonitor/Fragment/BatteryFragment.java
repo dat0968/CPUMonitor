@@ -68,11 +68,8 @@ public class BatteryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bindViews(view);
-        if (hasUsageStatsPermission(getContext())) {
-            loadRunningApps();
-        } else {
-            requestUsageStatsPermission();
-        }
+        // Danh sách ứng dụng người dùng không cần quyền Usage Stats
+        loadRunningApps();
         showBatteryDetail();
         logBatteryOnce();
         // Update averages on app start
@@ -92,18 +89,48 @@ public class BatteryFragment extends Fragment {
     }
     private void loadRunningApps() {
         List<AppItem> appItems = new ArrayList<>();
-        Intent intent = new Intent(Intent.ACTION_MAIN, null);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER); PackageManager pm = getActivity().getPackageManager();
-        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
-        // Sắp xếp theo tên app cho gọn
-        Collections.sort(resolveInfos, new ResolveInfo.DisplayNameComparator(pm));
-        for (ResolveInfo info : resolveInfos) {
-            // Tên ứng dụng
-            String appName = info.loadLabel(pm).toString();
-            Drawable appIcon = info.loadIcon(pm);
-            String packageName = info.activityInfo.packageName;
-            appItems.add(new AppItem(appName, appIcon, packageName));
+        Context context = getContext();
+        if (context == null) {
+            Log.d("BatteryFragment", "loadRunningApps: context is null");
+            displayApps(appItems);
+            return;
         }
+        PackageManager pm = context.getPackageManager();
+
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
+        Log.d("BatteryFragment", "loadRunningApps: resolveInfos size=" + (resolveInfos != null ? resolveInfos.size() : 0));
+        if (resolveInfos == null) {
+            displayApps(appItems);
+            return;
+        }
+        Collections.sort(resolveInfos, new ResolveInfo.DisplayNameComparator(pm));
+
+        int kept = 0;
+        for (ResolveInfo info : resolveInfos) {
+            try {
+                ApplicationInfo appInfo = info.activityInfo.applicationInfo;
+                boolean isSystemApp = ((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+                        || ((appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
+                if (isSystemApp) {
+                    continue;
+                }
+                String packageName = info.activityInfo.packageName;
+                if (packageName.equals(context.getPackageName())) {
+                    continue;
+                }
+                String appName = info.loadLabel(pm).toString();
+                Drawable appIcon = info.loadIcon(pm);
+                appItems.add(new AppItem(appName, appIcon, packageName));
+                kept++;
+            } catch (Exception e) {
+                Log.d("BatteryFragment", "loadRunningApps: error handling ResolveInfo", e);
+            }
+        }
+        Log.d("BatteryFragment", "loadRunningApps: kept user apps=" + kept);
+
+        Collections.sort(appItems, (a, b) -> a.name.compareToIgnoreCase(b.name));
         displayApps(appItems);
     }
     private void logBatteryOnce() {
@@ -130,8 +157,21 @@ public class BatteryFragment extends Fragment {
         }
     }
     private void displayApps(List<AppItem> appItems) {
-        if (tblApps == null) return;
+        if (tblApps == null) {
+            Log.d("BatteryFragment", "displayApps: tblApps is null");
+            return;
+        }
+        Log.d("BatteryFragment", "displayApps: item count=" + (appItems != null ? appItems.size() : 0));
         tblApps.removeAllViews();
+
+        if (appItems == null || appItems.isEmpty()) {
+            TextView tvEmpty = new TextView(getContext());
+            tvEmpty.setText("Không có ứng dụng người dùng");
+            tvEmpty.setTextColor(Color.DKGRAY);
+            tvEmpty.setGravity(Gravity.CENTER);
+            tblApps.addView(tvEmpty);
+            return;
+        }
 
         int appsPerRow = 3;
         TableRow tableRow = null;
@@ -180,8 +220,13 @@ public class BatteryFragment extends Fragment {
                 startActivity(intent);
             });
 
-            tableRow.addView(appLayout);
+            if (tableRow != null) {
+                tableRow.addView(appLayout);
+            } else {
+                Log.d("BatteryFragment", "displayApps: tableRow is null at index=" + i);
+            }
         }
+        Log.d("BatteryFragment", "displayApps: rendered rows=" + tblApps.getChildCount());
     }
 
 
