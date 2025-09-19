@@ -1,4 +1,9 @@
 package com.example.cpumonitor.Fragment;
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -20,11 +25,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.cpumonitor.Adapter.AppsRunningAdapter;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.viewmodel.AppItem;
+import com.example.cpumonitor.Viewmodel.AppItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,9 +44,8 @@ public class BatteryFragment extends Fragment {
     private RecyclerView rvApps;
     private static final String PREFS_NAME = "BatteryLogs";
     private static final String LOG_KEY = "BatteryData";
-     /* Xử lý các tác vụ hoặc thông điệp từ một thread khác trên Main Thread (UI Thread) mà
-     làm tắc nghẽn giao diện */
     private final Handler handler = new Handler();
+    private FrameLayout loadingOverlay;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -66,14 +71,13 @@ public class BatteryFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
-
-        Collections.sort(resolveInfos, new ResolveInfo.DisplayNameComparator(pm));
         int kept = 0;
         for (ResolveInfo info : resolveInfos) {
             try {
                 ApplicationInfo appInfo = info.activityInfo.applicationInfo;
-                boolean isSystemApp = ((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
-                        || ((appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
+//                boolean isSystemApp = ((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+//                        || ((appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
+                boolean isSystemApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                 if (isSystemApp) {
                     continue;
                 }
@@ -89,8 +93,6 @@ public class BatteryFragment extends Fragment {
                 Log.d("BatteryFragment", "loadRunningApps: error handling ResolveInfo", e);
             }
         }
-        Log.d("BatteryFragment", "loadRunningApps: kept user apps=" + kept);
-        Collections.sort(appItems, (a, b) -> a.name.compareToIgnoreCase(b.name));
         displayApps(appItems);
     }
     private void logBatteryOnce() {
@@ -124,6 +126,7 @@ public class BatteryFragment extends Fragment {
             Log.d("BatteryFragment", "displayApps: tblApps is null");
             return;
         }
+        rvApps.post(() -> loadingOverlay.setVisibility(GONE));
         Log.d("BatteryFragment", "displayApps: rendered rows=" + rvApps.getChildCount());
     }
 
@@ -188,6 +191,7 @@ public class BatteryFragment extends Fragment {
             e.printStackTrace();
         }
     }
+    @SuppressLint("WrongViewCast")
     private void bindViews(View view) {
         tvHealth = view.findViewById(R.id.tvHealth);
         tvTemp = view.findViewById(R.id.tvTemp);
@@ -199,6 +203,8 @@ public class BatteryFragment extends Fragment {
         txtBatteryLevelAVG = view.findViewById(R.id.txtBatteryLevelAVG);
         rvApps = view.findViewById(R.id.rvApps);
         txtquantityAppRunning = view.findViewById(R.id.txtquantityAppRunning);
+        loadingOverlay = view.findViewById(R.id.loadingOverlay);
+        loadingOverlay.setVisibility(VISIBLE);
     }
     public void showBatteryDetail(){
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);

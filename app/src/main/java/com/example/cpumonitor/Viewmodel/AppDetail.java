@@ -1,4 +1,4 @@
-package com.example.cpumonitor.viewmodel;
+package com.example.cpumonitor.Viewmodel;
 import android.graphics.drawable.Drawable;
 
 public class AppDetail {

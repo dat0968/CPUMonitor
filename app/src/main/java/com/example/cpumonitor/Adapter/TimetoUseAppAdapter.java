@@ -16,8 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cpumonitor.Activity.StatisticDetailAppActivity;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.viewmodel.AppDetail;
-import com.example.cpumonitor.viewmodel.AppItem;
+import com.example.cpumonitor.Viewmodel.AppDetail;
 
 import java.util.List;
 
@@ -89,6 +88,7 @@ public class TimetoUseAppAdapter extends RecyclerView.Adapter<TimetoUseAppAdapte
             txtapp_name = itemView.findViewById(R.id.txtapp_name);
             txt_usage_time = itemView.findViewById(R.id.txt_usage_time);
             skb_usage_seekbar = itemView.findViewById(R.id.skb_usage_seekbar);
+            skb_usage_seekbar.setEnabled(false);
             img_app_icon = itemView.findViewById(R.id.img_app_icon);
             lnl_itemTimetoUseApp = itemView.findViewById(R.id.lnl_itemTimetoUseApp);
         }

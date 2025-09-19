@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="8dp">
+
+    <!-- Cột thời gian: ngày-tháng-năm + giờ:phút:giây -->
+    <TextView
+        android:id="@+id/txttimelineTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="12dp"
+        android:text="2025-09-19 19:46:32"
+        android:textSize="12sp"
+        android:textColor="#333"
+        android:fontFamily="monospace" />
+
+    <!-- Cột đường timeline -->
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="12dp">
+
+        <!-- Đường dọc -->
+        <View
+            android:id="@+id/timelineLine"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:background="#4CAF50" />
+
+        <!-- Chấm tròn trên đường -->
+        <View
+            android:id="@+id/timelineDot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_gravity="center"
+            android:background="@drawable/timeline_dot" />
+    </FrameLayout>
+
+    <!-- Cột nội dung ứng dụng -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/imgappIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@null"
+            android:src="@drawable/bg_rounded"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtappName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tên ứng dụng"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtusageDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10m 15s"
+                android:textSize="14sp"
+                android:textColor="#666" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

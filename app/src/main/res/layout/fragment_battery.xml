@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#F3FFFFFF"
-        android:padding="20dp">
+        android:padding="20dp"
+        tools:ignore="UselessParent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,15 +21,16 @@
                 android:id="@+id/tvLevel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="25sp"
-                android:textColor="@color/black"
-                android:textStyle="bold"
                 android:gravity="center"
-                android:text="Loading %" />
+                android:text="Loading %"
+                android:textColor="@color/black"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
             <TableLayout
-                android:background="#C3FFC4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#C3FFC4"
                 android:stretchColumns="*">
 
                 <TableRow
@@ -40,8 +43,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:orientation="vertical">
 
                         <!-- Giá trị -->
                         <TextView
@@ -49,17 +52,17 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Loading"
+                            android:textColor="#000"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="#000"/>
+                            android:textStyle="bold" />
 
                         <!-- Tiêu đề -->
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Nhiệt độ"
-                            android:textSize="14sp"
-                            android:textColor="#555"/>
+                            android:textColor="#555"
+                            android:textSize="14sp" />
                     </LinearLayout>
 
                     <!-- Cột 2: Thời gian còn lại -->
@@ -67,32 +70,32 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center"/>
+                        android:gravity="center"
+                        android:orientation="vertical" />
 
                     <!-- Cột 3: Tình trạng sức khỏe -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tvHealth"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Loading"
+                            android:textColor="#000"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="#000"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tình trạng sức khỏe"
-                            android:textSize="14sp"
-                            android:textColor="#555"/>
+                            android:textColor="#555"
+                            android:textSize="14sp" />
                     </LinearLayout>
 
                 </TableRow>
@@ -114,45 +117,51 @@
                     android:stretchColumns="1">
 
                     <TableRow>
+
                         <TextView
                             android:padding="4dp"
-                            android:textColor="#000"
                             android:text="Tổng công suất"
+                            android:textColor="#000"
                             android:textStyle="bold" />
+
                         <TextView
                             android:id="@+id/tvCapacity"
                             android:gravity="end"
                             android:padding="4dp"
-                            android:textColor="#666161"
-                            android:text="loading" />
+                            android:text="loading"
+                            android:textColor="#666161" />
                     </TableRow>
 
                     <TableRow>
+
                         <TextView
                             android:padding="4dp"
-                            android:textColor="#000"
                             android:text="Điện áp"
+                            android:textColor="#000"
                             android:textStyle="bold" />
+
                         <TextView
                             android:id="@+id/tvVoltage"
                             android:gravity="end"
                             android:padding="4dp"
-                            android:textColor="#666161"
-                            android:text="loading" />
+                            android:text="loading"
+                            android:textColor="#666161" />
                     </TableRow>
 
                     <TableRow>
+
                         <TextView
                             android:padding="4dp"
-                            android:textColor="#000"
                             android:text="Tình trạng pin"
+                            android:textColor="#000"
                             android:textStyle="bold" />
+
                         <TextView
                             android:id="@+id/tvStatus"
                             android:gravity="end"
                             android:padding="4dp"
-                            android:textColor="#666161"
-                            android:text="loading" />
+                            android:text="loading"
+                            android:textColor="#666161" />
                     </TableRow>
 
                 </TableLayout>
@@ -174,21 +183,24 @@
                     android:stretchColumns="1">
 
                     <TableRow>
+
                         <TextView
                             android:padding="4dp"
-                            android:textColor="#000"
                             android:text="Nhiệt độ"
+                            android:textColor="#000"
                             android:textStyle="bold" />
+
                         <TextView
                             android:id="@+id/txtTemperatureAVG"
                             android:gravity="end"
                             android:padding="4dp"
-                            android:textColor="#666161"
-                            android:text="Avg loading" />
+                            android:text="Avg loading"
+                            android:textColor="#666161" />
                     </TableRow>
                 </TableLayout>
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -205,21 +217,24 @@
                     android:stretchColumns="1">
 
                     <TableRow>
+
                         <TextView
                             android:padding="4dp"
-                            android:textColor="#000"
                             android:text="Battery Level(24 Hour)"
+                            android:textColor="#000"
                             android:textStyle="bold" />
+
                         <TextView
                             android:id="@+id/txtBatteryLevelAVG"
                             android:gravity="end"
                             android:padding="4dp"
-                            android:textColor="#666161"
-                            android:text="Avg loading" />
+                            android:text="Avg loading"
+                            android:textColor="#666161" />
                     </TableRow>
                 </TableLayout>
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -233,21 +248,37 @@
                     android:id="@+id/txtquantityAppRunning"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#F44336"
-                    android:text="N/A ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin"/>
+                    android:text="N/A ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin"
+                    android:textColor="#F44336" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvApps"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:nestedScrollingEnabled="true"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    android:nestedScrollingEnabled="false"/>
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </LinearLayout>
 
 
         </LinearLayout>
     </ScrollView>
+    <!-- Loading overlay -->
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="visible">
+
+        <ProgressBar
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
 </FrameLayout>

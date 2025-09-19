@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     tools:context=".Fragment.HowToUseFragment">
 
@@ -22,15 +23,31 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-
-        <TextView
-            android:id="@+id/txtTimetouse"
-            android:layout_width="wrap_content"
+        <TableLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:text="Tổng số sử dụng: loading"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
+            android:stretchColumns="*">
+            <TableRow>
+                <TextView
+                    android:id="@+id/txtTimetouse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="Tổng số sử dụng: loading"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+                <Button
+                    android:id="@+id/btnGeneralDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chi tiết"
+                    android:textSize="20sp"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_square"
+                    />
+            </TableRow>
+        </TableLayout>
+
 
 
         <LinearLayout
@@ -51,4 +68,19 @@
         </LinearLayout>
 
     </LinearLayout>
+    <!-- Loading overlay -->
+    <FrameLayout
+        android:id="@+id/loadingFragmentHowToUse"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:visibility="visible"
+        android:clickable="true"
+        android:focusable="true">
+
+    <ProgressBar
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"/>
+</FrameLayout>
 </FrameLayout>

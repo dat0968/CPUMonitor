@@ -10,6 +10,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -60,6 +61,7 @@ public class MainFragment extends Fragment {
 
     private final Handler handler = new Handler();
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
+    private SharedPreferences prefs;
 
     @Nullable
     @Override
@@ -67,6 +69,15 @@ public class MainFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         bindViews(view);
         setupClickListeners();
+        // Tải thông tin CPU
+        showCpuInfo();
+        // Hiển thị thông tin thiết bị
+        showDeviceInfo();
+        // Hiển thị thông tin hệ thống
+        showSystem();
+        // Hiển thị thông tin màn hình
+        showScreenInfo();
+        // Tải các cấu hình hay thay đổi
         loadSystemInfo();
         return view;
     }
@@ -106,6 +117,7 @@ public class MainFragment extends Fragment {
         btnCheckCPU = view.findViewById(R.id.btnCheckCPU);
         btnCheckBattery = view.findViewById(R.id.btnCheckBattery);
         fragmentManager = getChildFragmentManager();
+        prefs = getContext().getSharedPreferences("System", Context.MODE_PRIVATE);
     }
 
     private void setupClickListeners() {
@@ -141,17 +153,8 @@ public class MainFragment extends Fragment {
         showStorageInfo();
         //  Hiển thị Ram
         showRamInfo();
-        // Hiển thị CPU
-        showCpuInfo();
         // Hiển thị thông tin pin
         showBatteryDetail();
-        // Hiển thị thông tin thiết bị
-        showDeviceInfo();
-        // Hiển thị thông tin hệ thống
-        showSystem();
-        // Hiển thị thông tin màn hình
-        showScreenInfo();
-
         startPeriodicUpdates();
     }
 
@@ -197,39 +200,61 @@ public class MainFragment extends Fragment {
         ActivityManager activityManager = (ActivityManager) requireContext().getSystemService(Context.ACTIVITY_SERVICE);
         ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
         activityManager.getMemoryInfo(memInfo);
-
-        long totalRam = memInfo.totalMem;
+        String totalRam = prefs.getString("totalRam", "0");
+        if(totalRam.equals("0")){
+            totalRam = memInfo.totalMem + "";
+            prefs.edit().putString("totalRam", totalRam).commit();
+        }
         long availRam = memInfo.availMem;
-        long usedRam = totalRam - availRam;
-
-        String ramText = formatSize(usedRam) + "/" + formatSize(totalRam);
+        long usedRam = Long.parseLong(totalRam) - availRam;
+        String ramText = formatSize(usedRam) + "/" + formatSize(Long.parseLong(totalRam));
         tvRam.setText(ramText);
     }
 
     private void showStorageInfo() {
         StatFs stat = new StatFs(Environment.getDataDirectory().getAbsolutePath());
 
-        long blockSize = stat.getBlockSizeLong();
-        long totalBlocks = stat.getBlockCountLong();
+        String blockSize = prefs.getString("blockSize", "0");
+        String totalBlocks = prefs.getString("totalBlocks", "0");
+        if(blockSize.equals("0")){
+            blockSize = stat.getBlockSizeLong() + "";
+            prefs.edit().putString("blockSize", blockSize).commit();
+        }
+        if(totalBlocks.equals("0")){
+            totalBlocks = stat.getBlockCountLong() + "";
+            prefs.edit().putString("totalBlocks", totalBlocks).commit();
+        }
+        long totalBytes = Long.parseLong(blockSize) * Long.parseLong(totalBlocks);
         long availableBlocks = stat.getAvailableBlocksLong();
-
-        long totalBytes = blockSize * totalBlocks;
-        long freeBytes = blockSize * availableBlocks;
+        long freeBytes = Long.parseLong(blockSize) * availableBlocks;
         long usedBytes = totalBytes - freeBytes;
-
         tvInternal.setText(formatSize(totalBytes));
         tvUsed.setText(formatSize(usedBytes));
         tvFree.setText(formatSize(freeBytes));
     }
 
     private void showCpuInfo() {
-        String arch = Build.SUPPORTED_ABIS.length > 0 ? Build.SUPPORTED_ABIS[0] : "Unknown";
+        String arch = prefs.getString("CpuArch", "Unknown");
+        if(arch.equals("Unknown")){
+            arch = Build.SUPPORTED_ABIS.length > 0 ? Build.SUPPORTED_ABIS[0] : "Unknown";
+            prefs.edit().putString("CpuArch", arch).commit();
+        }
         tvCpuArch.setText(arch);
 
-        int cores = Runtime.getRuntime().availableProcessors();
+
+        String cores = prefs.getString("Cores", "0");
+        if(cores.equals("0")){
+            cores = Runtime.getRuntime().availableProcessors() + "";
+            prefs.edit().putString("Cores", cores).commit();
+        }
         tvCpuCores.setText(cores + " Cores");
 
-        String freqRange = getCpuFreqRange();
+
+        String freqRange = prefs.getString("freqRange", "0");
+        if(freqRange.equals("0")){
+            freqRange = getCpuFreqRange();
+            prefs.edit().putString("freqRange", freqRange).commit();
+        }
         tvCpuFreq.setText(freqRange);
     }
 
@@ -362,13 +387,11 @@ public class MainFragment extends Fragment {
                 requireContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID
         );
-
         tvManufacturer.setText(manufacturer);
         tvModel.setText(model);
         tvBrand.setText(brand);
         tvAndroidID.setText(androidID);
     }
-
     private void showSystem() {
         tvAndroidVersion.setText(Build.VERSION.RELEASE);
         tvApiLevel.setText(String.valueOf(Build.VERSION.SDK_INT));
@@ -378,12 +401,14 @@ public class MainFragment extends Fragment {
         } else {
             tvSecurityPatch.setText("N/A");
         }
-
-        boolean isRooted = checkRoot();
-        tvRootAccess.setText(isRooted ? "Đã root" : "Chưa root");
-
-        long uptimeMillis = SystemClock.elapsedRealtime();
-        tvUptime.setText(formatDuration(uptimeMillis));
+        new Thread(() -> {
+            boolean isRooted = checkRoot();
+            long uptimeMillis = SystemClock.elapsedRealtime();
+            requireActivity().runOnUiThread(() -> {
+                tvRootAccess.setText(isRooted ? "Đã root" : "Chưa root");
+                tvUptime.setText(formatDuration(uptimeMillis));
+            });
+        }).start();
     }
 
     private boolean checkRoot() {
@@ -426,7 +451,7 @@ public class MainFragment extends Fragment {
         long hours = seconds / 3600;
         long minutes = (seconds % 3600) / 60;
         long sec = seconds % 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, sec);
+        return String.format("%02d:%02d", hours, minutes);
     }
 
     private String formatSize(long size) {
@@ -448,12 +473,8 @@ public class MainFragment extends Fragment {
             if (isAdded() && getActivity() != null) {
                 showRamInfo();
                 showBatteryDetail();
-                showCpuInfo();
-
-                // Update uptime
                 long uptimeMillis = SystemClock.elapsedRealtime();
                 tvUptime.setText(formatDuration(uptimeMillis));
-
                 handler.postDelayed(this, 1000);
             }
         }
@@ -465,6 +486,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        handler.removeCallbacks(updateRunnable);
         handler.post(updateRunnable);
     }
 

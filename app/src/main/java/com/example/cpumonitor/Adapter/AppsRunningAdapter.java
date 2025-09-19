@@ -13,7 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.viewmodel.AppItem;
+import com.example.cpumonitor.Viewmodel.AppItem;
 import java.util.List;
 
 public class AppsRunningAdapter extends RecyclerView.Adapter<AppsRunningAdapter.AppRunningViewHolder> {

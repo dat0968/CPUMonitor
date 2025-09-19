@@ -1,5 +1,7 @@
 package com.example.cpumonitor.Fragment;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ public class CPUFragment extends Fragment {
     private GridLayout gridCpu;
     private TableLayout tblApps;
     private final Handler handler = new Handler();
+    private SharedPreferences prefs;
 
     @Nullable
     @Override
@@ -39,7 +42,6 @@ public class CPUFragment extends Fragment {
         getCpuUsagePercent();
         return view;
     }
-
     private final Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
@@ -56,6 +58,7 @@ public class CPUFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        handler.removeCallbacks(updateRunnable);
         // Runnable đã được đưa vào hàng đợi của Handler
         handler.post(updateRunnable); // bắt đầu cập nhật
     }
@@ -74,12 +77,12 @@ public class CPUFragment extends Fragment {
     }
 
     private void BindView(View view) {
-        // Ánh xạ view từ fragment view
         txtModel = view.findViewById(R.id.txtModel);
         txtLoi = view.findViewById(R.id.txtLoi);
         txtClock = view.findViewById(R.id.txtClock);
         gridCpu = view.findViewById(R.id.gridCpu);
         txtpercentCPU = view.findViewById(R.id.txtpercentCPU);
+        prefs = getContext().getSharedPreferences("System", Context.MODE_PRIVATE);
     }
 
     private void getCpuUsagePercent() {
@@ -89,10 +92,14 @@ public class CPUFragment extends Fragment {
 
         for (int i = 0; i < cores; i++) {
             long cur = readCpuCurFreqValue(i);
-            long max = readCpuMaxFreqValue(i);
+            String max = prefs.getString("maxVal_" + i, "0");
+            if(max.equals("0")){
+                max = readCpuMaxFreqValue(i) + "";
+                prefs.edit().putString("maxVal_" + i, max).commit();
+            }
 
-            if (cur > 0 && max > 0) {
-                double percent = (cur * 1.0 / max) * 100.0;
+            if (cur > 0 && Long.parseLong(max) > 0) {
+                double percent = (cur * 1.0 / Long.parseLong(max)) * 100.0;
                 sumPercent += percent;
                 validCores++;
             }
@@ -105,7 +112,73 @@ public class CPUFragment extends Fragment {
             txtpercentCPU.setText("Loading: N/A");
         }
     }
+    private void loadCpuInfo() {
+        // Kiểm tra fragment còn được attach không trước khi update UI
+        if (!isAdded() || getActivity() == null) {
+            return;
+        }
+        // Model CPU
+        String model = prefs.getString("Model", "0");
+        if(model.equals("0")){
+            model = Build.HARDWARE;
+            prefs.edit().putString("Model", model).commit();
+        }
+        txtModel.setText(model);
 
+        // Số lõi
+        String cores = prefs.getString("Cores", "0");
+        if(cores.equals("0")){
+            cores = Runtime.getRuntime().availableProcessors() + "";
+            prefs.edit().putString("Cores", cores).commit();
+        }
+        txtLoi.setText(String.valueOf(cores));
+
+        // Tần số CPU đầu tiên (MHz)
+        String freq = prefs.getString("freqRange", "0");
+        if(freq.equals("0")){
+            freq = readCpuMaxFreqMHz(0);
+            prefs.edit().putString("freqRange", freq).commit();
+        }
+        txtClock.setText(freq);
+
+        // Hiển thị chi tiết từng core trong gridCpu
+        gridCpu.removeAllViews(); // xóa trước khi vẽ
+        for (int i = 0; i < Integer.parseInt(cores); i++) {
+            long curVal = readCpuCurFreqValue(i); // kHz
+            String maxVal = prefs.getString("maxVal_" + i, "0");
+            if(maxVal.equals("0")){
+                maxVal = readCpuMaxFreqValue(i) + ""; // kHz
+                prefs.edit().putString("maxVal_" + i, maxVal);
+            }
+
+            String curFreq = formatMHz(curVal);
+            String maxFreq = formatMHz(Long.parseLong(maxVal));
+
+            String percent = "N/A";
+            if (curVal > 0 && Long.parseLong(maxVal) > 0) {
+                double p = (curVal * 1.0 / Long.parseLong(maxVal)) * 100.0;
+                percent = String.format("%.1f%%", p);
+            }
+
+            TextView tv = new TextView(getContext());
+            tv.setText(
+                    "CPU " + i + "\n" +
+                            "Cur: " + curFreq + "\n" +
+                            "Max: " + maxFreq + "\n" +
+                            "Use: " + percent
+            );
+            tv.setBackgroundResource(R.drawable.bg_rounded); // bo góc (tự bạn định nghĩa drawable)
+            tv.setPadding(16, 16, 16, 16);
+            tv.setTextColor(Color.parseColor("#666161"));
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = 0;
+            params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+            params.setMargins(16, 16, 16, 16);
+            tv.setLayoutParams(params);
+            gridCpu.addView(tv);
+        }
+    }
     // Đọc tốc độ xử lý hiện tại với đơn vị Khz (kHz, long)
     private long readCpuCurFreqValue(int core) {
         String path = "/sys/devices/system/cpu/cpu" + core + "/cpufreq/scaling_cur_freq";
@@ -129,58 +202,6 @@ public class CPUFragment extends Fragment {
             e.printStackTrace();
         }
         return -1;
-    }
-
-    private void loadCpuInfo() {
-        // Kiểm tra fragment còn được attach không trước khi update UI
-        if (!isAdded() || getActivity() == null) {
-            return;
-        }
-        // Model CPU
-        String model = Build.HARDWARE; // hoặc Build.BOARD
-        txtModel.setText(model);
-
-        // Số lõi
-        int cores = Runtime.getRuntime().availableProcessors();
-        txtLoi.setText(String.valueOf(cores));
-
-        // Tần số CPU đầu tiên (MHz)
-        String freq = readCpuMaxFreqMHz(0);
-        txtClock.setText(freq);
-
-        // Hiển thị chi tiết từng core trong gridCpu
-        gridCpu.removeAllViews(); // xóa trước khi vẽ
-        for (int i = 0; i < cores; i++) {
-            long curVal = readCpuCurFreqValue(i); // kHz
-            long maxVal = readCpuMaxFreqValue(i); // kHz
-
-            String curFreq = formatMHz(curVal);
-            String maxFreq = formatMHz(maxVal);
-
-            String percent = "N/A";
-            if (curVal > 0 && maxVal > 0) {
-                double p = (curVal * 1.0 / maxVal) * 100.0;
-                percent = String.format("%.1f%%", p);
-            }
-
-            TextView tv = new TextView(getContext());
-            tv.setText(
-                    "CPU " + i + "\n" +
-                            "Cur: " + curFreq + "\n" +
-                            "Max: " + maxFreq + "\n" +
-                            "Use: " + percent
-            );
-            tv.setBackgroundResource(R.drawable.bg_rounded); // bo góc (tự bạn định nghĩa drawable)
-            tv.setPadding(16, 16, 16, 16);
-            tv.setTextColor(Color.parseColor("#666161"));
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.width = 0;
-            params.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            params.setMargins(16, 16, 16, 16);
-            tv.setLayoutParams(params);
-            gridCpu.addView(tv);
-        }
     }
 
     // Format kHz → MHz
