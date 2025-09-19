@@ -28,13 +28,13 @@ public class BehindCameraFragment extends Fragment {
     private static final String TAG = "BehindCameraFragment";
     private TextView megaPixelsTextView, pixelArraySizeTextView, sensorSizeTextView,
             focalLengthTextView, orientationTextView;
-
+    // Tạo layout cho Fragment.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_behind_camera, container, false);
     }
-
+    // Tương tác với các view con đã được tạo.
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -49,7 +49,12 @@ public class BehindCameraFragment extends Fragment {
         // Kiểm tra quyền CAMERA
         checkAndRequestCameraPermission();
     }
+    /*
+        lần 1: onCreate -> onStart -> onResume
+        lần 2: Quay lại ứng dụng sau khi tạm dừng -> onRestart -> onStart -> onResume
 
+        Mục đích: Khởi tạo các tài nguyên mà ta cần khi ứng dụng đang ở trạng thái tương tác
+    */
     @Override
     public void onResume() {
         super.onResume();
@@ -87,6 +92,7 @@ public class BehindCameraFragment extends Fragment {
         }
     }
 
+    // Lấy thông tin camera
     public void fetchCameraInfo() {
         try {
             Log.d(TAG, "Bắt đầu lấy thông tin camera");

@@ -65,6 +65,7 @@
                         <TextView
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="RAM" />
                     </TableRow>
 
@@ -79,6 +80,7 @@
                             android:id="@+id/tvInternal"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -93,6 +95,7 @@
                             android:id="@+id/tvUsed"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -107,6 +110,7 @@
                             android:id="@+id/tvFree"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
                 </TableLayout>
@@ -164,6 +168,7 @@
                             android:id="@+id/tvCpuArch"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -178,6 +183,7 @@
                             android:id="@+id/tvCpuCores"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -192,6 +198,7 @@
                             android:id="@+id/tvCpuFreq"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
                 </TableLayout>
@@ -249,6 +256,7 @@
                             android:id="@+id/tvHealth"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -263,6 +271,7 @@
                             android:id="@+id/tvTemp"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -277,6 +286,7 @@
                             android:id="@+id/tvLevel"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -291,6 +301,7 @@
                             android:id="@+id/tvCapacity"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -305,6 +316,7 @@
                             android:id="@+id/tvVoltage"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -319,6 +331,7 @@
                             android:id="@+id/tvStatus"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -333,6 +346,7 @@
                             android:id="@+id/tvPlugged"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -347,6 +361,7 @@
                             android:id="@+id/tvTechnology"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
                 </TableLayout>
@@ -387,6 +402,7 @@
                             android:id="@+id/tvAndroidVersion"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -401,6 +417,7 @@
                             android:id="@+id/tvApiLevel"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -415,6 +432,7 @@
                             android:id="@+id/tvSecurityPatch"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -429,6 +447,7 @@
                             android:id="@+id/tvRootAccess"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -443,6 +462,7 @@
                             android:id="@+id/tvUptime"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
                 </TableLayout>
@@ -483,6 +503,7 @@
                             android:id="@+id/tvManufacturer"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -497,6 +518,7 @@
                             android:id="@+id/tvModel"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -511,6 +533,7 @@
                             android:id="@+id/tvBrand"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -525,6 +548,7 @@
                             android:id="@+id/tvAndroidID"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
                 </TableLayout>
@@ -565,6 +589,7 @@
                             android:id="@+id/tvResolution"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -579,6 +604,7 @@
                             android:id="@+id/tvDensity"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -593,6 +619,7 @@
                             android:id="@+id/tvSizeInches"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
 
@@ -607,6 +634,7 @@
                             android:id="@+id/tvRefreshRate"
                             android:gravity="end"
                             android:padding="4dp"
+                            android:textColor="#666161"
                             android:text="loading" />
                     </TableRow>
                 </TableLayout>

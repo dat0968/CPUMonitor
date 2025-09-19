@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
+        viewPager.setUserInputEnabled(false);
     }
 
     private void setupViewPager() {

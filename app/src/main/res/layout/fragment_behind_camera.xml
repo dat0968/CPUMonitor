@@ -34,6 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="(Loading) Mega Pixels"
+                android:textColor="#666161"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -59,6 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Loading x Loading"
+                android:textColor="#666161"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -84,6 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Loading x Loading"
+                android:textColor="#666161"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -109,6 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Loading mm"
+                android:textColor="#666161"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -134,6 +138,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Loading deg"
+                android:textColor="#666161"
                 android:textSize="16sp" />
         </LinearLayout>
 

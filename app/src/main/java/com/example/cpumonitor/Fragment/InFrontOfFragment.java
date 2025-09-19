@@ -39,14 +39,12 @@ public class InFrontOfFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Gán ID cho TextView
         megaPixelsTextView = view.findViewById(R.id.txt_mega_pixels);
         pixelArraySizeTextView = view.findViewById(R.id.txt_pixel_array_size);
         sensorSizeTextView = view.findViewById(R.id.txt_sensor_size);
         focalLengthTextView = view.findViewById(R.id.txt_focal_length);
         orientationTextView = view.findViewById(R.id.txt_orientation);
 
-        // Kiểm tra quyền CAMERA
         checkAndRequestCameraPermission();
     }
 
@@ -86,6 +84,7 @@ public class InFrontOfFragment extends Fragment {
         }
     }
 
+    // Lấy thông tin camera
     public void fetchCameraInfo() {
         try {
             Log.d(TAG, "Bắt đầu lấy thông tin camera trước");

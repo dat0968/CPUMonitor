@@ -1,10 +1,5 @@
 package com.example.cpumonitor.Fragment;
-
-import android.app.ActivityManager;
 import android.app.AppOpsManager;
-import android.app.usage.UsageEvents;
-import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -17,18 +12,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import android.os.Handler;
-import android.os.SystemClock;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -41,69 +29,75 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.cpumonitor.R;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class BatteryFragment extends Fragment {
-    // Views
-    private TextView tvHealth, tvTemp, tvLevel, tvCapacity, tvVoltage, tvStatus, txtTemperatureAVG, txtBatteryLevelAVG;
+    private TextView tvHealth, tvTemp, tvLevel, tvCapacity, tvVoltage, tvStatus, txtTemperatureAVG, txtBatteryLevelAVG, txtquantityAppRunning;
     private TableLayout tblApps;
-
     private static final String PREFS_NAME = "BatteryLogs";
     private static final String LOG_KEY = "BatteryData";
+     /* Xử lý các tác vụ hoặc thông điệp từ một thread khác trên Main Thread (UI Thread) mà
+     làm tắc nghẽn giao diện */
     private final Handler handler = new Handler();
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bindViews(view);
-        if (hasUsageStatsPermission(getContext())) {
-            loadRunningApps();
-        } else {
-            requestUsageStatsPermission();
-        }
+        // Tải các ứng dụng đang chạy
+        loadRunningApps();
+        // Hiển thị thông tin chi tiết pin
         showBatteryDetail();
+        //
         logBatteryOnce();
         // Update averages on app start
         new Handler().postDelayed(this::updateAverage, 100);
-
-    }
-    private boolean hasUsageStatsPermission(Context context) {
-        AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(), context.getPackageName());
-        return mode == AppOpsManager.MODE_ALLOWED;
-    }
-
-    private void requestUsageStatsPermission() {
-        startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
-        Toast.makeText(getContext(), "Hãy cấp quyền truy cập để xem app đang chạy", Toast.LENGTH_LONG).show();
     }
     private void loadRunningApps() {
         List<AppItem> appItems = new ArrayList<>();
-        Intent intent = new Intent(Intent.ACTION_MAIN, null);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER); PackageManager pm = getActivity().getPackageManager();
-        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
-        // Sắp xếp theo tên app cho gọn
-        Collections.sort(resolveInfos, new ResolveInfo.DisplayNameComparator(pm));
-        for (ResolveInfo info : resolveInfos) {
-            // Tên ứng dụng
-            String appName = info.loadLabel(pm).toString();
-            Drawable appIcon = info.loadIcon(pm);
-            String packageName = info.activityInfo.packageName;
-            appItems.add(new AppItem(appName, appIcon, packageName));
+        if (getContext() == null) {
+            displayApps(appItems);
+            return;
         }
+        PackageManager pm = getContext().getPackageManager();
+
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
+        if (resolveInfos == null) {
+            displayApps(appItems);
+            return;
+        }
+        Collections.sort(resolveInfos, new ResolveInfo.DisplayNameComparator(pm));
+        int kept = 0;
+        for (ResolveInfo info : resolveInfos) {
+            try {
+                ApplicationInfo appInfo = info.activityInfo.applicationInfo;
+                boolean isSystemApp = ((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+                        || ((appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
+                if (isSystemApp) {
+                    continue;
+                }
+                String packageName = info.activityInfo.packageName;
+                if (packageName.equals(getContext().getPackageName())) {
+                    continue;
+                }
+                String appName = info.loadLabel(pm).toString();
+                Drawable appIcon = info.loadIcon(pm);
+                appItems.add(new AppItem(appName, appIcon, packageName));
+                kept++;
+            } catch (Exception e) {
+                Log.d("BatteryFragment", "loadRunningApps: error handling ResolveInfo", e);
+            }
+        }
+        Log.d("BatteryFragment", "loadRunningApps: kept user apps=" + kept);
+        Collections.sort(appItems, (a, b) -> a.name.compareToIgnoreCase(b.name));
         displayApps(appItems);
     }
     private void logBatteryOnce() {
@@ -130,9 +124,22 @@ public class BatteryFragment extends Fragment {
         }
     }
     private void displayApps(List<AppItem> appItems) {
-        if (tblApps == null) return;
+        if (tblApps == null) {
+            Log.d("BatteryFragment", "displayApps: tblApps is null");
+            return;
+        }
+        Log.d("BatteryFragment", "displayApps: item count=" + (appItems != null ? appItems.size() : 0));
         tblApps.removeAllViews();
 
+        if (appItems == null || appItems.isEmpty()) {
+            TextView tvEmpty = new TextView(getContext());
+            tvEmpty.setText("Không có ứng dụng người dùng");
+            tvEmpty.setTextColor(Color.DKGRAY);
+            tvEmpty.setGravity(Gravity.CENTER);
+            tblApps.addView(tvEmpty);
+            return;
+        }
+        txtquantityAppRunning.setText(appItems.size() + " ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin");
         int appsPerRow = 3;
         TableRow tableRow = null;
         int margin = 16;
@@ -180,8 +187,13 @@ public class BatteryFragment extends Fragment {
                 startActivity(intent);
             });
 
-            tableRow.addView(appLayout);
+            if (tableRow != null) {
+                tableRow.addView(appLayout);
+            } else {
+                Log.d("BatteryFragment", "displayApps: tableRow is null at index=" + i);
+            }
         }
+        Log.d("BatteryFragment", "displayApps: rendered rows=" + tblApps.getChildCount());
     }
 
 
@@ -266,12 +278,12 @@ public class BatteryFragment extends Fragment {
         txtTemperatureAVG = view.findViewById(R.id.txtTemperatureAVG);
         txtBatteryLevelAVG = view.findViewById(R.id.txtBatteryLevelAVG);
         tblApps = view.findViewById(R.id.tblApps);
+        txtquantityAppRunning = view.findViewById(R.id.txtquantityAppRunning);
     }
     public void showBatteryDetail(){
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent battery = requireContext().registerReceiver(null, ifilter);
         if (battery == null) return;
-
         // Mức pin %
         int level = battery.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);

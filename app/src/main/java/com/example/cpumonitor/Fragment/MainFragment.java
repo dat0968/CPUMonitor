@@ -136,18 +136,25 @@ public class MainFragment extends Fragment {
         });
 
         toggleGroup.setVisibility(INVISIBLE);
-
         txtPixelCamera.setOnClickListener(v -> checkAndRequestCameraPermission());
     }
 
     private void loadSystemInfo() {
+        // Hiển thị bộ nhớ
         showStorageInfo();
+        //  Hiển thị Ram
         showRamInfo();
+        // Hiển thị CPU
         showCpuInfo();
+        // Hiển thị thông tin pin
         showBatteryDetail();
+        // Hiển thị thông tin thiết bị
         showDeviceInfo();
+        // Hiển thị thông tin hệ thống
         showSystem();
+        // Hiển thị thông tin màn hình
         showScreenInfo();
+
         startPeriodicUpdates();
     }
 
@@ -437,11 +444,7 @@ public class MainFragment extends Fragment {
             return String.format("%.1f KB", kb);
         }
     }
-
-    private void startPeriodicUpdates() {
-        handler.post(updateRunnable);
-    }
-
+    //
     private final Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
@@ -458,6 +461,9 @@ public class MainFragment extends Fragment {
             }
         }
     };
+    private void startPeriodicUpdates() {
+        handler.post(updateRunnable);
+    }
 
     @Override
     public void onResume() {

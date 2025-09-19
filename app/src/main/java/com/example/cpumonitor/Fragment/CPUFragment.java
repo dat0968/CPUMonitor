@@ -1,6 +1,7 @@
 package com.example.cpumonitor.Fragment;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,6 +38,7 @@ public class CPUFragment extends Fragment {
         BindView(view);
         // Load thông tin CPU
         loadCpuInfo();
+        // % CPU đang hoạt động
         getCpuUsagePercent();
         return view;
     }
@@ -107,13 +109,13 @@ public class CPUFragment extends Fragment {
         }
     }
 
-    // Đọc current freq (kHz, long)
+    // Đọc tốc độ xử lý hiện tại với đơn vị Khz (kHz, long)
     private long readCpuCurFreqValue(int core) {
         String path = "/sys/devices/system/cpu/cpu" + core + "/cpufreq/scaling_cur_freq";
         return readFreqValue(path);
     }
 
-    // Đọc max freq (kHz, long)
+    // Đọc tốc độ xử lý tối đa với đơn vị Khz (kHz, long)
     private long readCpuMaxFreqValue(int core) {
         String path = "/sys/devices/system/cpu/cpu" + core + "/cpufreq/cpuinfo_max_freq";
         return readFreqValue(path);
@@ -137,7 +139,6 @@ public class CPUFragment extends Fragment {
         if (!isAdded() || getActivity() == null) {
             return;
         }
-
         // Model CPU
         String model = Build.HARDWARE; // hoặc Build.BOARD
         txtModel.setText(model);
@@ -174,14 +175,13 @@ public class CPUFragment extends Fragment {
             );
             tv.setBackgroundResource(R.drawable.bg_rounded); // bo góc (tự bạn định nghĩa drawable)
             tv.setPadding(16, 16, 16, 16);
-
+            tv.setTextColor(Color.parseColor("#666161"));
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.setMargins(16, 16, 16, 16);
             tv.setLayoutParams(params);
-
             gridCpu.addView(tv);
         }
     }
@@ -196,6 +196,7 @@ public class CPUFragment extends Fragment {
     // Dùng cho txtClock
     private String readCpuMaxFreqMHz(int core) {
         long val = readCpuMaxFreqValue(core);
+        // Đổi KHz sang MHz
         return formatMHz(val);
     }
 }
