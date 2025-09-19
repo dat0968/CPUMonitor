@@ -32,14 +32,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.cpumonitor.Fragment.BehindCameraFragment;
-import com.example.cpumonitor.Fragment.InFrontOfFragment;
-import com.example.cpumonitor.MainActivity;
+import com.example.cpumonitor.Activity.MainActivity;
 import com.example.cpumonitor.R;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 

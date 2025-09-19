@@ -1,4 +1,4 @@
-package com.example.cpumonitor;
+package com.example.cpumonitor.Activity;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,7 +9,9 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.cpumonitor.Fragment.BatteryFragment;
 import com.example.cpumonitor.Fragment.CPUFragment;
+import com.example.cpumonitor.Fragment.HowToUseFragment;
 import com.example.cpumonitor.Fragment.MainFragment;
+import com.example.cpumonitor.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -53,37 +55,11 @@ public class MainActivity extends AppCompatActivity {
                         case 2:
                             tab.setText("Battery");
                             break;
+                        case 3:
+                            tab.setText("HowToUse");
+                            break;
                     }
                 }).attach();
-
-        // Thêm listener để reset SystemFragment khi click vào tab System
-//        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-//            @Override
-//            public void onTabSelected(TabLayout.Tab tab) {
-//                if (tab.getPosition() == 0) { // Tab System
-//                    Fragment fragment = getSupportFragmentManager()
-//                            .findFragmentByTag("f" + 0); // ViewPager2 tag pattern
-//                    if (fragment instanceof MainFragment) {
-//                        ((MainFragment) fragment).resetToSystemView();
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onTabUnselected(TabLayout.Tab tab) {}
-//
-//            @Override
-//            public void onTabReselected(TabLayout.Tab tab) {
-//                // Cũng reset khi click lại tab System đang active
-//                if (tab.getPosition() == 0) {
-//                    Fragment fragment = getSupportFragmentManager()
-//                            .findFragmentByTag("f" + 0);
-//                    if (fragment instanceof MainFragment) {
-//                        ((MainFragment) fragment).resetToSystemView();
-//                    }
-//                }
-//            }
-//        });
     }
 
     // Method để chuyển đến CPU tab từ SystemFragment
@@ -95,13 +71,15 @@ public class MainActivity extends AppCompatActivity {
     public void switchToBatteryTab() {
         viewPager.setCurrentItem(2, true);
     }
+    // Method để chuyển đến Battery tab từ SystemFragment hoặc fragment khác
+    public void switchToHowToUseTab() {
+        viewPager.setCurrentItem(3, true);
+    }
 
     private static class ViewPagerAdapter extends FragmentStateAdapter {
-
         public ViewPagerAdapter(FragmentActivity fragmentActivity) {
             super(fragmentActivity);
         }
-
         @Override
         public Fragment createFragment(int position) {
             switch (position) {
@@ -111,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
                     return new CPUFragment();
                 case 2:
                     return new BatteryFragment();
+                case 3:
+                    return new HowToUseFragment();
                 default:
                     return new MainFragment();
             }
@@ -118,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return 3; // System, CPU, và Battery
+            return 4; // System, CPU, và Battery
         }
     }
 }

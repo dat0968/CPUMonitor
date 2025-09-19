@@ -1,6 +1,5 @@
 package com.example.cpumonitor.Fragment;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,7 +7,6 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -17,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.cpumonitor.MainActivity;
 import com.example.cpumonitor.R;
 
 import java.io.BufferedReader;

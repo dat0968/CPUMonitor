@@ -1,5 +1,4 @@
 package com.example.cpumonitor.Fragment;
-import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -7,29 +6,26 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.os.Handler;
-import android.provider.Settings;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.cpumonitor.Adapter.AppsRunningAdapter;
 import com.example.cpumonitor.R;
+import com.example.cpumonitor.viewmodel.AppItem;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +35,7 @@ import java.util.List;
 
 public class BatteryFragment extends Fragment {
     private TextView tvHealth, tvTemp, tvLevel, tvCapacity, tvVoltage, tvStatus, txtTemperatureAVG, txtBatteryLevelAVG, txtquantityAppRunning;
-    private TableLayout tblApps;
+    private RecyclerView rvApps;
     private static final String PREFS_NAME = "BatteryLogs";
     private static final String LOG_KEY = "BatteryData";
      /* Xử lý các tác vụ hoặc thông điệp từ một thread khác trên Main Thread (UI Thread) mà
@@ -70,10 +66,7 @@ public class BatteryFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
-        if (resolveInfos == null) {
-            displayApps(appItems);
-            return;
-        }
+
         Collections.sort(resolveInfos, new ResolveInfo.DisplayNameComparator(pm));
         int kept = 0;
         for (ResolveInfo info : resolveInfos) {
@@ -90,7 +83,7 @@ public class BatteryFragment extends Fragment {
                 }
                 String appName = info.loadLabel(pm).toString();
                 Drawable appIcon = info.loadIcon(pm);
-                appItems.add(new AppItem(appName, appIcon, packageName));
+                appItems.add(new AppItem(appName, appIcon, packageName, 0L));
                 kept++;
             } catch (Exception e) {
                 Log.d("BatteryFragment", "loadRunningApps: error handling ResolveInfo", e);
@@ -124,89 +117,16 @@ public class BatteryFragment extends Fragment {
         }
     }
     private void displayApps(List<AppItem> appItems) {
-        if (tblApps == null) {
+        txtquantityAppRunning.setText(appItems.size() + " ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin.");
+        rvApps.setLayoutManager(new GridLayoutManager(getContext(), 3)); // 3 cột
+        rvApps.setAdapter(new AppsRunningAdapter(getContext(), appItems));
+        if (rvApps == null) {
             Log.d("BatteryFragment", "displayApps: tblApps is null");
             return;
         }
-        Log.d("BatteryFragment", "displayApps: item count=" + (appItems != null ? appItems.size() : 0));
-        tblApps.removeAllViews();
-
-        if (appItems == null || appItems.isEmpty()) {
-            TextView tvEmpty = new TextView(getContext());
-            tvEmpty.setText("Không có ứng dụng người dùng");
-            tvEmpty.setTextColor(Color.DKGRAY);
-            tvEmpty.setGravity(Gravity.CENTER);
-            tblApps.addView(tvEmpty);
-            return;
-        }
-        txtquantityAppRunning.setText(appItems.size() + " ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin");
-        int appsPerRow = 3;
-        TableRow tableRow = null;
-        int margin = 16;
-
-        for (int i = 0; i < appItems.size(); i++) {
-            if (i % appsPerRow == 0) {
-                tableRow = new TableRow(getContext());
-                tableRow.setLayoutParams(new TableLayout.LayoutParams(
-                        TableLayout.LayoutParams.MATCH_PARENT,
-                        TableLayout.LayoutParams.WRAP_CONTENT
-                ));
-                tblApps.addView(tableRow);
-            }
-
-            LinearLayout appLayout = new LinearLayout(getContext());
-            appLayout.setOrientation(LinearLayout.VERTICAL);
-            appLayout.setGravity(Gravity.CENTER);
-
-            TableRow.LayoutParams params = new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1f);
-            params.setMargins(margin, margin, margin, margin);
-            appLayout.setLayoutParams(params);
-
-            ImageView ivIcon = new ImageView(getContext());
-            ivIcon.setImageDrawable(appItems.get(i).icon);
-            ivIcon.setLayoutParams(new LinearLayout.LayoutParams(100, 100));
-            appLayout.addView(ivIcon);
-
-            TextView tvName = new TextView(getContext());
-            tvName.setText(appItems.get(i).name);
-            tvName.setGravity(Gravity.CENTER);
-            tvName.setTextColor(Color.BLACK);
-            tvName.setPadding(0, 8, 0, 8);
-            appLayout.addView(tvName);
-
-            Button btnStop = new Button(getContext());
-            btnStop.setText("Tạm dừng");
-            btnStop.setBackgroundColor(Color.parseColor("#4CAF50"));
-            btnStop.setTextColor(Color.WHITE);
-            appLayout.addView(btnStop);
-
-            final String pkg = appItems.get(i).packageName;
-            btnStop.setOnClickListener(v -> {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                intent.setData(Uri.parse("package:" + pkg));
-                startActivity(intent);
-            });
-
-            if (tableRow != null) {
-                tableRow.addView(appLayout);
-            } else {
-                Log.d("BatteryFragment", "displayApps: tableRow is null at index=" + i);
-            }
-        }
-        Log.d("BatteryFragment", "displayApps: rendered rows=" + tblApps.getChildCount());
+        Log.d("BatteryFragment", "displayApps: rendered rows=" + rvApps.getChildCount());
     }
 
-
-    private static class AppItem {
-        String name;
-        Drawable icon;
-        String packageName;
-        AppItem(String name, Drawable icon, String packageName) {
-            this.name = name;
-            this.icon = icon;
-            this.packageName = packageName;
-        }
-    }
     private void saveData(long timestamp, float battery, float temp) {
         // Lấy SharedPreferences của Fragment
         SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -277,7 +197,7 @@ public class BatteryFragment extends Fragment {
         tvStatus = view.findViewById(R.id.tvStatus);
         txtTemperatureAVG = view.findViewById(R.id.txtTemperatureAVG);
         txtBatteryLevelAVG = view.findViewById(R.id.txtBatteryLevelAVG);
-        tblApps = view.findViewById(R.id.tblApps);
+        rvApps = view.findViewById(R.id.rvApps);
         txtquantityAppRunning = view.findViewById(R.id.txtquantityAppRunning);
     }
     public void showBatteryDetail(){

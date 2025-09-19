@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -235,11 +236,15 @@
                     android:textColor="#F44336"
                     android:text="N/A ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin"/>
 
-                <TableLayout
-                    android:id="@+id/tblApps"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvApps"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#666161"/>
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:nestedScrollingEnabled="false"/>
             </LinearLayout>
 
 

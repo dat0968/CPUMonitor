@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
-        tools:ignore="ProtectedPermissions" />
 
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -14,12 +15,11 @@
 
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="true" />
-
-    <!-- Khai báo package visibility cho Android 11+ để truy vấn app launcher -->
+        android:required="true" /> <!-- Khai báo package visibility cho Android 11+ để truy vấn app launcher -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
+
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
     </queries>
@@ -34,7 +34,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CPUMonitor">
         <activity
-            android:name=".MainActivity"
+            android:name=".Activity.StatisticDetailAppActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.login.StatisticDetailAppActivity"
+            android:exported="false"
+            android:label="@string/title_activity_statistic_detail_app" />
+        <activity
+            android:name=".Activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
