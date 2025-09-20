@@ -1,19 +1,26 @@
 package com.example.cpumonitor.Activity;
 
 import android.app.usage.UsageEvents;
+import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +29,8 @@ import com.example.cpumonitor.Adapter.TimeLineAppAdapter;
 import com.example.cpumonitor.R;
 import com.example.cpumonitor.Viewmodel.AppTimeline;
 
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,71 +49,86 @@ public class TimeLineAppActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_time_line_app);
         rcvTimelineApp = findViewById(R.id.rcvTimelineApp);
         loadUsageEvents();
     }
     private void loadUsageEvents() {
+        PackageManager pm = getPackageManager();
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
 
         if (usm == null) {
-            Toast.makeText(this, "UsageStatsManager not available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "UsageStatsManager không khả dụng", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        long end = System.currentTimeMillis();
-        long start = end - 1000L * 60 * 60; // 1 giờ trước
+        // 1. Lấy danh sách app launcher
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, 0);
+        Set<String> launcherPackageSet = new HashSet<>();
+        for (ResolveInfo info : launcherApps) {
+            launcherPackageSet.add(info.activityInfo.packageName);
+        }
 
-        UsageEvents usageEvents = usm.queryEvents(start, end);
-        if (usageEvents == null) {
-            Toast.makeText(this, "Chưa được cấp quyền Usage Access", Toast.LENGTH_SHORT).show();
+        // 2. Lấy UsageStats trong 24h
+        long endTime = System.currentTimeMillis();
+        long startTime = endTime - 1000L * 60 * 60 * 24;
+        List<UsageStats> usageStatsList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+
+        if (usageStatsList == null || usageStatsList.isEmpty()) {
+            Toast.makeText(this, "Không có dữ liệu sử dụng ứng dụng", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        UsageEvents.Event event = new UsageEvents.Event();
-        PackageManager pm = getPackageManager();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        // set để loại trừ trùng app
-        Set<String> addedPackages = new HashSet<>();
         appTimelineList.clear();
+        Set<String> addedPackages = new HashSet<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-        while (usageEvents.hasNextEvent()) {
-            usageEvents.getNextEvent(event);
-            String pkg = event.getPackageName();
+        for (UsageStats stats : usageStatsList) {
+            String pkg = stats.getPackageName();
 
-            if (pkg.equals(getPackageName())) continue; // bỏ app hiện tại
-            if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                // Nếu chỉ muốn mỗi app 1 lần, dùng addedPackages
-                if (addedPackages.contains(pkg)) continue;
+            // Bỏ app không phải launcher và app trùng lặp
+            if (!launcherPackageSet.contains(pkg) || addedPackages.contains(pkg)) continue;
+            if (pkg.equals(getPackageName())) continue;
 
-                try {
-                    ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
-                    String label = pm.getApplicationLabel(info).toString();
-                    Drawable icon = pm.getApplicationIcon(info);
-                    long ts = event.getTimeStamp();
-                    String timeStr = sdf.format(new Date(ts));
+            try {
+                ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
+                String label = pm.getApplicationLabel(info).toString();
+                Drawable icon = pm.getApplicationIcon(info);
 
-                    appTimelineList.add(new AppTimeline(label, icon, timeStr, ts));
-                    addedPackages.add(pkg);
-
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
+                long lastTimeUsed = stats.getLastTimeUsed();
+                long totalTimeUsed = stats.getTotalTimeInForeground();
+                String timelineStr = sdf.format(new Date(lastTimeUsed));
+                if(totalTimeUsed < 1){
+                    continue;
                 }
+
+                appTimelineList.add(new AppTimeline(label, icon, timelineStr, totalTimeUsed, pkg));
+                addedPackages.add(pkg);
+
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
             }
         }
 
-        // Sắp xếp mới nhất lên đầu theo timestamp
-        Collections.sort(appTimelineList, (a, b) -> Long.compare(b.timestamp, a.timestamp));
+        // Sắp xếp theo Timeline (mới nhất lên đầu)
+        Collections.sort(appTimelineList, (a, b) -> {
+            try {
+                Date dateA = sdf.parse(a.Timeline);
+                Date dateB = sdf.parse(b.Timeline);
+                return dateB.compareTo(dateA); // mới nhất lên đầu
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return 0;
+            }
+        });
 
-        for (int i = 0; i < Math.min(appTimelineList.size(), 10); i++) {
-            AppTimeline t = appTimelineList.get(i);
-            Log.d("AppTimeline", "App: " + t.appName + ", time: " + t.timestamp);
-        }
-
+        // Gán RecyclerView
         rcvTimelineApp.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TimeLineAppAdapter(TimeLineAppActivity.this, appTimelineList);
         rcvTimelineApp.setAdapter(adapter);
     }
+
 
 }

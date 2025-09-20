@@ -2,6 +2,7 @@ package com.example.cpumonitor.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -27,6 +28,18 @@ public class TimeLineAppAdapter extends RecyclerView.Adapter<TimeLineAppAdapter.
     public TimeLineAppAdapter(Context context, List<AppTimeline> listapp) {
         this.context = context;
         this.listapp = listapp;
+        // Sắp xếp giảm dần theo Timeline
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        this.listapp.sort((a, b) -> {
+            try {
+                Date dateA = sdf.parse(a.Timeline);
+                Date dateB = sdf.parse(b.Timeline);
+                return dateB.compareTo(dateA); // mới nhất lên đầu
+            } catch (Exception e) {
+                e.printStackTrace();
+                return 0;
+            }
+        });
     }
 
     @NonNull
@@ -39,15 +52,25 @@ public class TimeLineAppAdapter extends RecyclerView.Adapter<TimeLineAppAdapter.
     @Override
     public void onBindViewHolder(@NonNull TimeLineViewHolder holder, int position) {
         AppTimeline item = listapp.get(position);
-
+        try {
+            item.icon = context.getPackageManager().getApplicationIcon(item._package);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        // Hiển thị icon và tên app
         holder.imgappIcon.setImageDrawable(item.icon);
         holder.txtappName.setText(item.appName);
-        holder.txtusageDuration.setText(item.time);
 
-        // Chuyển timestamp sang String (ví dụ format "HH:mm:ss")
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        String timeStr = sdf.format(new Date(item.timestamp));
-        holder.txttimelineTime.setText(timeStr);
+        // Hiển thị duration dạng "2h 15m 30s"
+        long durationMs = item.TimeDuration;
+        long seconds = (durationMs / 1000) % 60;
+        long minutes = (durationMs / (1000 * 60)) % 60;
+        long hours = (durationMs / (1000 * 60 * 60));
+        String durationStr = (hours > 0 ? hours + "h " : "")
+                + (minutes > 0 ? minutes + "m " : "")
+                + seconds + "s";
+        holder.txtusageDuration.setText(durationStr);
+        holder.txttimelineTime.setText(item.Timeline);
     }
 
     @Override

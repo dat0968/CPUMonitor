@@ -28,7 +28,7 @@ public class AppsRunningAdapter extends RecyclerView.Adapter<AppsRunningAdapter.
     @Override
     public AppRunningViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Tạo ra itemLayout
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_runningapplication, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_runningapp, parent, false);
         return new AppRunningViewHolder(view);
     }
 

@@ -52,8 +52,9 @@
                 android:progress="50"
                 android:max="100"
                 android:thumb="@null"
-                android:progressTint="#3F51B5"
+                android:progressTint="#060EF2"
                 android:minHeight="6dp"
+                android:clickable="false"
                 android:layout_marginEnd="8dp" />
 
             <!-- Thời gian sử dụng -->

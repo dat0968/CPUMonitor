@@ -10,7 +10,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.cpumonitor.Fragment.BatteryFragment;
 import com.example.cpumonitor.Fragment.CPUFragment;
 import com.example.cpumonitor.Fragment.HowToUseFragment;
-import com.example.cpumonitor.Fragment.MainFragment;
+import com.example.cpumonitor.Fragment.SystemFragment;
 import com.example.cpumonitor.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment createFragment(int position) {
             switch (position) {
                 case 0:
-                    return new MainFragment();
+                    return new SystemFragment();
                 case 1:
                     return new CPUFragment();
                 case 2:
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 case 3:
                     return new HowToUseFragment();
                 default:
-                    return new MainFragment();
+                    return new SystemFragment();
             }
         }
 

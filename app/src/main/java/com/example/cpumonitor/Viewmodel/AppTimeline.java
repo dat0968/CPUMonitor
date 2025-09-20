@@ -5,13 +5,16 @@ import android.graphics.drawable.Drawable;
 public class AppTimeline {
     public String appName;
     public Drawable icon;
-    public String time;
-    public long timestamp;
+    public String Timeline;
+    public long TimeDuration;
 
-    public AppTimeline(String appName, Drawable icon, String time, long timestamp) {
+    public String _package;
+
+    public AppTimeline(String appName, Drawable icon, String time, long timestamp, String _package) {
         this.appName = appName;
         this.icon = icon;
-        this.time = time;
-        this.timestamp = timestamp;
+        this.Timeline = time;
+        this.TimeDuration = timestamp;
+        this._package = _package;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.cpumonitor.Fragment;
+package com.example.cpumonitor.Fragment.CameraFragment;
 
 import android.Manifest;
 import android.content.Context;
@@ -23,7 +23,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.cpumonitor.R;
 
-public class InFrontOfFragment extends Fragment {
+public class FontCameraFragment extends Fragment {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     private static final String TAG = "InFrontOfFragment";
     private TextView megaPixelsTextView, pixelArraySizeTextView, sensorSizeTextView,

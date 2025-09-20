@@ -38,6 +38,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.cpumonitor.Activity.MainActivity;
+import com.example.cpumonitor.Fragment.CameraFragment.RearCameraFragment;
+import com.example.cpumonitor.Fragment.CameraFragment.FontCameraFragment;
 import com.example.cpumonitor.R;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
@@ -46,7 +48,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class MainFragment extends Fragment {
+public class SystemFragment extends Fragment {
 
     // Views
     private TextView tvInternal, tvUsed, tvFree, tvRam, tvCpuArch, tvCpuCores, tvCpuFreq,
@@ -66,7 +68,7 @@ public class MainFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_system, container, false);
         bindViews(view);
         setupClickListeners();
         // Tải thông tin CPU
@@ -135,10 +137,10 @@ public class MainFragment extends Fragment {
         toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (isChecked) {
                 if (checkedId == R.id.btnRear) {
-                    BehindCameraFragment behindCameraFragment = new BehindCameraFragment();
-                    fragmentManager.beginTransaction().replace(R.id.frCamera, behindCameraFragment).commit();
+                    RearCameraFragment rearCameraFragment = new RearCameraFragment();
+                    fragmentManager.beginTransaction().replace(R.id.frCamera, rearCameraFragment).commit();
                 } else if (checkedId == R.id.btnFront) {
-                    InFrontOfFragment inFrontOfCameraFragment = new InFrontOfFragment();
+                    FontCameraFragment inFrontOfCameraFragment = new FontCameraFragment();
                     fragmentManager.beginTransaction().replace(R.id.frCamera, inFrontOfCameraFragment).commit();
                 }
             }
@@ -165,8 +167,8 @@ public class MainFragment extends Fragment {
         } else {
             txtPixelCamera.setVisibility(GONE);
             toggleGroup.setVisibility(VISIBLE);
-            BehindCameraFragment behindCameraFragment = new BehindCameraFragment();
-            fragmentManager.beginTransaction().replace(R.id.frCamera, behindCameraFragment).commit();
+            RearCameraFragment rearCameraFragment = new RearCameraFragment();
+            fragmentManager.beginTransaction().replace(R.id.frCamera, rearCameraFragment).commit();
             updateCurrentFragment();
         }
     }
@@ -178,8 +180,8 @@ public class MainFragment extends Fragment {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 txtPixelCamera.setVisibility(GONE);
                 toggleGroup.setVisibility(VISIBLE);
-                BehindCameraFragment behindCameraFragment = new BehindCameraFragment();
-                fragmentManager.beginTransaction().replace(R.id.frCamera, behindCameraFragment).commit();
+                RearCameraFragment rearCameraFragment = new RearCameraFragment();
+                fragmentManager.beginTransaction().replace(R.id.frCamera, rearCameraFragment).commit();
                 updateCurrentFragment();
             } else {
                 Toast.makeText(getContext(), "Cần quyền camera để lấy thông tin!", Toast.LENGTH_LONG).show();
@@ -189,10 +191,10 @@ public class MainFragment extends Fragment {
 
     private void updateCurrentFragment() {
         Fragment currentFragment = fragmentManager.findFragmentById(R.id.frCamera);
-        if (currentFragment instanceof BehindCameraFragment) {
-            ((BehindCameraFragment) currentFragment).fetchCameraInfo();
-        } else if (currentFragment instanceof InFrontOfFragment) {
-            ((InFrontOfFragment) currentFragment).fetchCameraInfo();
+        if (currentFragment instanceof RearCameraFragment) {
+            ((RearCameraFragment) currentFragment).fetchCameraInfo();
+        } else if (currentFragment instanceof FontCameraFragment) {
+            ((FontCameraFragment) currentFragment).fetchCameraInfo();
         }
     }
 

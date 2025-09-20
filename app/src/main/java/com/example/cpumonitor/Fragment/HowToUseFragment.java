@@ -1,5 +1,6 @@
 package com.example.cpumonitor.Fragment;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
@@ -22,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +31,14 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.cpumonitor.Activity.TimeLineAppActivity;
-import com.example.cpumonitor.Adapter.TimetoUseAppAdapter;
+import com.example.cpumonitor.Adapter.AppUsageAdapter;
 import com.example.cpumonitor.R;
 import com.example.cpumonitor.Viewmodel.AppDetail;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class HowToUseFragment extends Fragment {
     private TextView txtTimetouse;
     private RecyclerView rvAppToUse;
     private Handler handler = new Handler();
-    private TimetoUseAppAdapter adapter;
+    private AppUsageAdapter adapter;
     private FrameLayout loadingFragmentHowToUse;
     private Button btnGeneralDetails;
 
@@ -71,6 +72,7 @@ public class HowToUseFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent myintent = new Intent(getContext(), TimeLineAppActivity.class);
+                myintent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 startActivity(myintent);
             }
         });
@@ -108,14 +110,19 @@ public class HowToUseFragment extends Fragment {
                 for (UsageStats u : statsToday) {
                     try {
                         String packageName = u.getPackageName();
-
+                        Intent launchIntent = pm.getLaunchIntentForPackage(packageName);
+                        if (launchIntent == null) continue;
                         // Bỏ app hiện tại và app hệ thống
                         if (packageName.equals(context.getPackageName())) continue;
 
                         ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
-                        boolean isSystemApp = ((ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
-                                || ((ai.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
-                        if (isSystemApp) continue;
+//                        boolean isSystemApp = ((ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+//                                || ((ai.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
+//                        if (isSystemApp && !packageName.equals("com.android.chrome") &&
+//                                !packageName.startsWith("com.google.")) {
+//                            // Bỏ qua system app, trừ Chrome
+//                            continue;
+//                        }
 
                         AppDetail detail = map.get(packageName);
                         if (detail == null) {
@@ -189,11 +196,19 @@ public class HowToUseFragment extends Fragment {
 
             // Chuyển map -> list và sắp xếp theo todayUsage giảm dần
             appDetails.addAll(map.values());
+            // Lọc bỏ các app có todayUsage = 0;
+            Iterator<AppDetail> iterator = appDetails.iterator();
+            while (iterator.hasNext()) {
+                AppDetail d = iterator.next();
+                if (d.todayUsage == 0) {
+                    iterator.remove();
+                }
+            }
             appDetails.sort((a, b) -> Long.compare(b.todayUsage, a.todayUsage));
 
             // Set adapter
             getActivity().runOnUiThread(() -> {
-                adapter = new TimetoUseAppAdapter(getContext(), appDetails);
+                adapter = new AppUsageAdapter(getContext(), appDetails);
                 rvAppToUse.setLayoutManager(new LinearLayoutManager(getContext()));
                 rvAppToUse.setAdapter(adapter);
                 rvAppToUse.post(() -> loadingFragmentHowToUse.setVisibility(GONE));
@@ -214,8 +229,13 @@ public class HowToUseFragment extends Fragment {
     private void getScreenOnTime(Context context) {
         UsageStatsManager usm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
         long end = System.currentTimeMillis();
-        long start = end - 24 * 60 * 60 * 1000; // 24h qua
-
+        // Lấy 0 giờ hôm nay
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long start = cal.getTimeInMillis();   // mốc 0h hôm nay
         List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, start, end);
         long totalForeground = 0;
         if (stats != null) {
