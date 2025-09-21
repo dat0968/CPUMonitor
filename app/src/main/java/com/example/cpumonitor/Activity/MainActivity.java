@@ -9,7 +9,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.cpumonitor.Fragment.BatteryFragment;
 import com.example.cpumonitor.Fragment.CPUFragment;
-import com.example.cpumonitor.Fragment.HowToUseFragment;
+import com.example.cpumonitor.Fragment.AppUsageFragment;
 import com.example.cpumonitor.Fragment.SystemFragment;
 import com.example.cpumonitor.R;
 import com.google.android.material.tabs.TabLayout;
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 case 2:
                     return new BatteryFragment();
                 case 3:
-                    return new HowToUseFragment();
+                    return new AppUsageFragment();
                 default:
                     return new SystemFragment();
             }

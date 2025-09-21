@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.cpumonitor.Fragment.StatisticDetailAppFragment;
-import com.example.cpumonitor.Fragment.TimeLineofAppFragment;
+import com.example.cpumonitor.Fragment.SingleTimeLineAppFragment;
 import com.example.cpumonitor.Viewmodel.AppDetail;
 
 public class ViewPager_Details_App_Adapter extends FragmentStateAdapter {
@@ -20,7 +20,7 @@ public class ViewPager_Details_App_Adapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position) {
             case 0: return new StatisticDetailAppFragment(app);
-            case 1: return new TimeLineofAppFragment(app);
+            case 1: return new SingleTimeLineAppFragment(app);
             default: return new StatisticDetailAppFragment(app);
         }
     }

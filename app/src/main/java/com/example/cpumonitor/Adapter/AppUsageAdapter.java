@@ -77,12 +77,14 @@ public class AppUsageAdapter extends RecyclerView.Adapter<AppUsageAdapter.TimeTo
             public void onClick(View v) {
                 Intent intent = new Intent(context, DetailsAppActivity.class);
                 intent.putExtra("appName", app.appName);
-                intent.putExtra("packageName", app.packageName); // để load icon
+                // để load icon
+                intent.putExtra("packageName", app.packageName);
+
                 intent.putExtra("todayUsage", app.todayUsage);
-                intent.putExtra("avgDailyUsage", app.avgDailyUsage);
+                /*intent.putExtra("avgDailyUsage", app.avgDailyUsage);
                 intent.putExtra("maxDailyUsage", app.maxDailyUsage);
                 intent.putExtra("todayLaunchCount", app.todayLaunchCount);
-                intent.putExtra("continuousUsage", app.continuousUsage);
+                intent.putExtra("continuousUsage", app.continuousUsage);*/
                 intent.putExtra("installTime", app.installTime);
                 context.startActivity(intent);
             }

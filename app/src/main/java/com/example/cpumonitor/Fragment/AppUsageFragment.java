@@ -43,14 +43,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class HowToUseFragment extends Fragment {
+public class AppUsageFragment extends Fragment {
     private TextView txtTimetouse;
     private RecyclerView rvAppToUse;
-    private Handler handler = new Handler();
     private AppUsageAdapter adapter;
     private FrameLayout loadingFragmentHowToUse;
     private Button btnGeneralDetails;
-
+    //static List<AppDetail> appDetails;
+    static Boolean ReadyappDetails = true;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -79,34 +79,33 @@ public class HowToUseFragment extends Fragment {
         loadAppUsageList(getContext());
         // Get thời gian sử dụng màn hình
         getScreenOnTime(getContext());
-        handleTimetoUse();
-        //loadingFragmentHowToUse.setVisibility(GONE);
     }
-
+    private boolean hasUsageStatsPermission(Context context) {
+        AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+        int mode = appOps.checkOpNoThrow(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                android.os.Process.myUid(),
+                context.getPackageName());
+        return mode == AppOpsManager.MODE_ALLOWED;
+    }
     // Lấy thông tin chi tiết ứng dụng
     private void loadAppUsageList(Context context) {
         new Thread(() -> {
             UsageStatsManager usm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
             PackageManager pm = context.getPackageManager();
-            long now = System.currentTimeMillis();
-
-            // Bắt đầu ngày hôm nay
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.HOUR_OF_DAY, 0);
             cal.set(Calendar.MINUTE, 0);
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             long startOfDay = cal.getTimeInMillis();
+            long now        = System.currentTimeMillis();
+
 
             List<UsageStats> statsToday = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startOfDay, now);
             List<AppDetail> appDetails = new ArrayList<>();
             Map<String, AppDetail> map = new HashMap<>();
-            Map<String, Long> lastBackgroundTimeMap = new HashMap<>();
-
             if (statsToday != null) {
-                UsageEvents events = usm.queryEvents(startOfDay, now);
-                UsageEvents.Event event = new UsageEvents.Event();
-
                 for (UsageStats u : statsToday) {
                     try {
                         String packageName = u.getPackageName();
@@ -136,7 +135,6 @@ public class HowToUseFragment extends Fragment {
                             detail.packageName = packageName;
                             detail.installTime = installTime;
                             detail.todayUsage = 0;
-                            detail.todayLaunchCount = 0;
                             detail.continuousUsage = 0;
                             detail.avgDailyUsage = 0;
                             detail.maxDailyUsage = 0;
@@ -148,50 +146,28 @@ public class HowToUseFragment extends Fragment {
                         detail.todayUsage += u.getTotalTimeInForeground();
 
                         // Tính avgDailyUsage & maxDailyUsage 7 ngày gần nhất
-                        long totalUsage = 0;
-                        long maxUsage = 0;
-                        for (int i = 0; i < 7; i++) {
-                            long start = now - i * 24L * 60 * 60 * 1000;
-                            long end = start + 24L * 60 * 60 * 1000;
-                            List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, start, end);
-                            if (stats != null) {
-                                for (UsageStats s : stats) {
-                                    if (s.getPackageName().equals(packageName)) {
-                                        long time = s.getTotalTimeInForeground();
-                                        totalUsage += time;
-                                        if (time > maxUsage) maxUsage = time;
-                                    }
-                                }
-                            }
-                        }
-                        detail.avgDailyUsage = totalUsage / 7;
-                        detail.maxDailyUsage = maxUsage;
+//                        long totalUsage = 0;
+//                        long maxUsage = 0;
+//                        for (int i = 0; i < 7; i++) {
+//                            long start = now - i * 24L * 60 * 60 * 1000;
+//                            long end = start + 24L * 60 * 60 * 1000;
+//                            List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, start, end);
+//                            if (stats != null) {
+//                                for (UsageStats s : stats) {
+//                                    if (s.getPackageName().equals(packageName)) {
+//                                        long time = s.getTotalTimeInForeground();
+//                                        totalUsage += time;
+//                                        if (time > maxUsage) maxUsage = time;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        detail.avgDailyUsage = totalUsage / 7;
+//                        detail.maxDailyUsage = maxUsage;
 
                     } catch (PackageManager.NameNotFoundException ignored) {
                     }
                 }
-
-                // Xử lý todayLaunchCount & continuousUsage từ UsageEvents
-                String lastForegroundPackage = ""; // biến tạm lưu package foreground trước đó
-
-                while (events.hasNextEvent()) {
-                    events.getNextEvent(event);
-                    AppDetail detail = map.get(event.getPackageName());
-                    if (detail == null) continue;
-
-                    if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                        // Chỉ đếm khi app foreground khác app trước đó
-                        if (!event.getPackageName().equals(lastForegroundPackage)) {
-                            detail.todayLaunchCount++;
-                        }
-                        detail.lastForegroundStart = event.getTimeStamp();
-                        lastForegroundPackage = event.getPackageName(); // cập nhật foreground package
-                    } else if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                        long duration = event.getTimeStamp() - detail.lastForegroundStart;
-                        if (duration > detail.continuousUsage) detail.continuousUsage = duration;
-                    }
-                }
-
             }
 
             // Chuyển map -> list và sắp xếp theo todayUsage giảm dần
@@ -212,18 +188,9 @@ public class HowToUseFragment extends Fragment {
                 rvAppToUse.setLayoutManager(new LinearLayoutManager(getContext()));
                 rvAppToUse.setAdapter(adapter);
                 rvAppToUse.post(() -> loadingFragmentHowToUse.setVisibility(GONE));
-               // loadingFragmentHowToUse.setVisibility(GONE);
             });
+            ReadyappDetails = false;
         }).start();
-    }
-
-    private boolean hasUsageStatsPermission(Context context) {
-        AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-        int mode = appOps.checkOpNoThrow(
-                AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(),
-                context.getPackageName());
-        return mode == AppOpsManager.MODE_ALLOWED;
     }
 
     private void getScreenOnTime(Context context) {
@@ -240,6 +207,7 @@ public class HowToUseFragment extends Fragment {
         long totalForeground = 0;
         if (stats != null) {
             for (UsageStats u : stats) {
+                if (u.getTotalTimeInForeground() < 30_000) continue; // < 30 giây bỏ qua
                 totalForeground += u.getTotalTimeInForeground();
             }
         }
@@ -253,31 +221,22 @@ public class HowToUseFragment extends Fragment {
         txtTimetouse.setText("Tổng số sử dụng: " + time);
     }
 
-    private final Runnable updateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (isAdded() && getActivity() != null) {
-                getScreenOnTime(getContext());
-                loadAppUsageList(getContext());
-                handler.postDelayed(this, 300000);
-            }
-        }
-    };
-
     public void onResume() {
         super.onResume();
-        handleTimetoUse();
+        if (!hasUsageStatsPermission(requireContext())) {
+            // Nếu vẫn chưa cấp quyền -> mở lại màn hình cấp quyền
+            startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+        } else {
+            if(!ReadyappDetails){
+                return;
+            }
+            loadingFragmentHowToUse.setVisibility(VISIBLE);
+            // Đã có quyền -> load dữ liệu
+            loadAppUsageList(requireContext());
+            getScreenOnTime(requireContext());
+        }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        handler.removeCallbacks(updateRunnable);
-    }
-
-    private void handleTimetoUse() {
-        handler.post(updateRunnable);
-    }
 
     private void bindViews(View view) {
         txtTimetouse = view.findViewById(R.id.txtTimetouse);
