@@ -9,6 +9,7 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -46,6 +47,8 @@ public class StatisticDetailAppFragment extends Fragment {
     }
     TextView tv_usage_today, tv_usage_average, tv_usage_max,
             tv_views_today, tv_continuous_usage, tv_install_date;
+    private String Range;
+    static int days = 1;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -61,6 +64,7 @@ public class StatisticDetailAppFragment extends Fragment {
         HandleCount();
         // Tính toán thời gian sử dụng liên tục
         HandleContinuousUsage();
+        // Tính toán thời gian sử dụng trung bình
         HandleUsageAvg();
         handleMaxUsage();
     }
@@ -74,20 +78,17 @@ public class StatisticDetailAppFragment extends Fragment {
                 (UsageStatsManager) requireContext().getSystemService(Context.USAGE_STATS_SERVICE);
         if (usm == null) return;
 
-        long now = System.currentTimeMillis();
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        long startOfDay = cal.getTimeInMillis();
+        long[] times = getTimeRange(Range);
+        long start = times[0];
+        long end = times[1];
 
-        UsageEvents events = usm.queryEvents(startOfDay, now);
+        UsageEvents events = usm.queryEvents(start, end);
         UsageEvents.Event event = new UsageEvents.Event();
 
         Map<String, Long> startMap = new HashMap<>();
         List<AppTimeline> timelineList = new ArrayList<>();
-        SimpleDateFormat sdfHM = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        //SimpleDateFormat sdfHM = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        SimpleDateFormat sdfHM = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         PackageManager pm = requireContext().getPackageManager();
 
         while (events.hasNextEvent()) {
@@ -100,7 +101,7 @@ public class StatisticDetailAppFragment extends Fragment {
                 Long startTs = startMap.remove(pkgName);
                 if (startTs != null) {
                     long duration = event.getTimeStamp() - startTs;
-                    if (duration > 90_000) { // >1s
+                    if (duration > 1400) {
                         try {
                             ApplicationInfo ai = pm.getApplicationInfo(pkgName, 0);
                             String name = pm.getApplicationLabel(ai).toString();
@@ -153,51 +154,22 @@ public class StatisticDetailAppFragment extends Fragment {
 
     // Tính toán thời gian sử dụng liên tục
     private void HandleContinuousUsage() {
-        // Lấy packageName từ Intent (truyền từ Activity cha)
-        String pkgName = requireActivity().getIntent().getStringExtra("packageName");
-        if (pkgName == null) return;
-
-        UsageStatsManager usm =
-                (UsageStatsManager) requireContext().getSystemService(Context.USAGE_STATS_SERVICE);
-        if (usm == null) return;
-
-        long now = System.currentTimeMillis();
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        long startOfDay = cal.getTimeInMillis();
-
-        UsageEvents events = usm.queryEvents(startOfDay, now);
-        UsageEvents.Event event = new UsageEvents.Event();
-
-        long lastForegroundStart = -1L;
-        long continuousUsage = 0L;
-
-        while (events.hasNextEvent()) {
-            events.getNextEvent(event);
-            if (!pkgName.equals(event.getPackageName())) continue;
-
-            if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                lastForegroundStart = event.getTimeStamp();
-            } else if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                if (lastForegroundStart > 0) {
-                    long duration = event.getTimeStamp() - lastForegroundStart;
-                    if (duration > continuousUsage) {
-                        continuousUsage = duration; // lưu lần dùng dài nhất
-                    }
-                }
-            }
+        days = 1;
+        switch (Range) {
+            case "today": days = 1; break;
+            case "yesterday": days = 2; break;
+            case "7days": days = 7; break;
+            case "14days": days = 14; break;
+            case "28days": days = 28; break;
         }
 
-        // Cập nhật UI hoặc trả về kết quả
-        tv_continuous_usage.setText(formatDuration(continuousUsage));
+        //String formatted = String.format(Locale.getDefault(), "%d days %s", days, formatDuration(maxContinuousUsage));
+        tv_continuous_usage.setText(days + " days");
     }
 
     // Tính toán thời gian trung bình hằng ngày
     private void HandleUsageAvg(){
-        tv_usage_average.setText(formatDuration(app.todayUsage));
+        tv_usage_average.setText(formatDuration(app.todayUsage / days));
     }
 
     // Tính toán thời gian sử dụng tối đa hằng ngày
@@ -211,23 +183,84 @@ public class StatisticDetailAppFragment extends Fragment {
         tv_views_today      = view.findViewById(R.id.tv_views_today);
         tv_continuous_usage = view.findViewById(R.id.tv_continuous_usage);
         tv_install_date     = view.findViewById(R.id.tv_install_date);
+        SharedPreferences prefs = getContext().getSharedPreferences("RangeRank", Context.MODE_PRIVATE);
+        Range = prefs.getString("range", "today");
     }
 
     private void MapDataToUI() {
         // ---- Format dữ liệu ----
         String todayUsageStr    = formatDuration(app.todayUsage);
-        String avgDailyStr      = formatDuration(app.avgDailyUsage);
-        String maxDailyStr      = formatDuration(app.maxDailyUsage);
         String installDateStr   = DateFormat.getDateInstance(
                         DateFormat.MEDIUM, Locale.getDefault())
                 .format(new Date(app.installTime));
 
         // ---- Đổ dữ liệu ra UI ----
         tv_usage_today.setText(todayUsageStr);
-        //tv_usage_average.setText(avgDailyStr);
-        //tv_usage_max.setText(maxDailyStr);
         tv_install_date.setText(installDateStr);
     }
+    private long[] getTimeRange(String range) {
+        if (range == null) range = "today";
+        Calendar cal = Calendar.getInstance();
+        long end = System.currentTimeMillis();
+        long start;
+
+        switch (range) {
+            case "today":
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+            case "yesterday":
+                cal.add(Calendar.DAY_OF_MONTH, -1);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                cal.set(Calendar.HOUR_OF_DAY, 23);
+                cal.set(Calendar.MINUTE, 59);
+                cal.set(Calendar.SECOND, 59);
+                cal.set(Calendar.MILLISECOND, 999);
+                end = cal.getTimeInMillis();
+                break;
+            case "7days":
+                cal.add(Calendar.DAY_OF_MONTH, -6);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+            case "14days":
+                cal.add(Calendar.DAY_OF_MONTH, -13);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+            case "28days":
+                cal.add(Calendar.DAY_OF_MONTH, -27);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+            default:
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+        }
+
+        return new long[]{start, end};
+    }
+
     // Hàm format mili giây → hh:mm:ss
     private String formatDuration(long millis) {
         long hours   = TimeUnit.MILLISECONDS.toHours(millis);

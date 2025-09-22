@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+    <item
+        android:id="@+id/today"
+        android:title="Hôm nay"/>
+    <item
+        android:id="@+id/yesterday"
+        android:title="Hôm qua"/>
+    <item
+        android:id="@+id/last_7_days"
+        android:title="7 ngày qua"/>
+    <item
+        android:id="@+id/last_14_days"
+        android:title="14 ngày qua"/>
+    <item
+        android:id="@+id/last_28_days"
+        android:title="28 ngày qua"/>
+</menu>

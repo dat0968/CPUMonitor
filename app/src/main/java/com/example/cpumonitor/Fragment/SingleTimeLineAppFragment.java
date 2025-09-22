@@ -45,6 +45,7 @@ public class SingleTimeLineAppFragment extends Fragment {
         this.app = app;
     }
     RecyclerView rcvTimelineApp;
+    private static String Range;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -61,22 +62,20 @@ public class SingleTimeLineAppFragment extends Fragment {
         rcvTimelineApp = view.findViewById(R.id.rcvTimelineApp);
         appTimelineList = new ArrayList<>();
     }
+
     private void loadSingleAppUsageEvents(String targetPkg) {
+        SharedPreferences prefs = getContext().getSharedPreferences("RangeRank", Context.MODE_PRIVATE);
+        Range = prefs.getString("range", "today");
+        long[] times = getTimeRange(Range);
+        long startTime = times[0];
+        long endTime = times[1];
         new Thread(() -> {
             UsageStatsManager usm = (UsageStatsManager) requireContext().getSystemService(Context.USAGE_STATS_SERVICE);
             if (usm == null) return;
 
             PackageManager pm = requireContext().getPackageManager();
 
-            long now = System.currentTimeMillis();
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            long startOfDay = cal.getTimeInMillis();
-
-            UsageEvents events = usm.queryEvents(startOfDay, now);
+            UsageEvents events = usm.queryEvents(startTime, endTime);
             UsageEvents.Event event = new UsageEvents.Event();
 
             List<AppTimeline> timelineList = new ArrayList<>();
@@ -102,11 +101,11 @@ public class SingleTimeLineAppFragment extends Fragment {
                             Long startTs = startMap.remove(targetPkg);
                             if (startTs != null) {
                                 long duration = event.getTimeStamp() - startTs;
-                                if (duration > 90_000) {
+                                if (duration > 1400) {
                                     ApplicationInfo ai = pm.getApplicationInfo(targetPkg, 0);
                                     String name = pm.getApplicationLabel(ai).toString();
                                     Drawable icon = pm.getApplicationIcon(ai);
-                                    String timeStr = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date(startTs));
+                                    String timeStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date(startTs));
 
                                     timelineList.add(0, new AppTimeline(
                                             name,
@@ -136,5 +135,67 @@ public class SingleTimeLineAppFragment extends Fragment {
 
             Log.d("TimeLineFragment", "Total timeline items: " + timelineList.size());
         }).start();
+    }
+    private long[] getTimeRange(String range) {
+        if (range == null) range = "today";
+        Calendar cal = Calendar.getInstance();
+        long end = System.currentTimeMillis(); // <- đây chính là now
+        long start;
+
+        switch (range) {
+            case "today":
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+            case "yesterday":
+                cal.add(Calendar.DAY_OF_MONTH, -1);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+
+                cal.set(Calendar.HOUR_OF_DAY, 23);
+                cal.set(Calendar.MINUTE, 59);
+                cal.set(Calendar.SECOND, 59);
+                cal.set(Calendar.MILLISECOND, 999);
+                end = cal.getTimeInMillis();
+                break;
+            case "7days":
+                cal.add(Calendar.DAY_OF_MONTH, -6); // bao gồm hôm nay
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+            case "14days":
+                cal.add(Calendar.DAY_OF_MONTH, -13);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+            case "28days":
+                cal.add(Calendar.DAY_OF_MONTH, -27);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+            default: // today
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                start = cal.getTimeInMillis();
+                break;
+        }
+        return new long[]{start, end};
     }
 }

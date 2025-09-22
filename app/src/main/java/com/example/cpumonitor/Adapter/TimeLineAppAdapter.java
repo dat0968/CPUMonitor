@@ -29,7 +29,7 @@ public class TimeLineAppAdapter extends RecyclerView.Adapter<TimeLineAppAdapter.
         this.context = context;
         this.listapp = listapp;
         // Sắp xếp giảm dần theo Timeline
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         this.listapp.sort((a, b) -> {
             try {
                 Date dateA = sdf.parse(a.Timeline);

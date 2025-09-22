@@ -79,7 +79,6 @@ public class AppUsageAdapter extends RecyclerView.Adapter<AppUsageAdapter.TimeTo
                 intent.putExtra("appName", app.appName);
                 // để load icon
                 intent.putExtra("packageName", app.packageName);
-
                 intent.putExtra("todayUsage", app.todayUsage);
                 /*intent.putExtra("avgDailyUsage", app.avgDailyUsage);
                 intent.putExtra("maxDailyUsage", app.maxDailyUsage);
