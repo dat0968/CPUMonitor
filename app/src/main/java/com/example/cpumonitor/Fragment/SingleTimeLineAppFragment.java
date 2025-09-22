@@ -23,6 +23,7 @@ import com.example.cpumonitor.Adapter.TimeLineAppAdapter;
 import com.example.cpumonitor.R;
 import com.example.cpumonitor.Viewmodel.AppDetail;
 import com.example.cpumonitor.Viewmodel.AppTimeline;
+import com.example.cpumonitor.Viewmodel.TimelineItem;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -124,12 +125,21 @@ public class SingleTimeLineAppFragment extends Fragment {
             // Cập nhật RecyclerView trên UI thread
             requireActivity().runOnUiThread(() -> {
                 if (timelineList != null && !timelineList.isEmpty()) {
-                    adapter = new TimeLineAppAdapter(getContext(), timelineList);
+                    List<TimelineItem> timelineItems = new ArrayList<>();
+                    String lastDate = null;
+                    for (AppTimeline t : timelineList) {
+                        String currentDate = t.Timeline.substring(0, 10); // yyyy-MM-dd
+                        if (!currentDate.equals(lastDate)) {
+                            timelineItems.add(new TimelineItem(currentDate)); // header
+                            lastDate = currentDate;
+                        }
+                        timelineItems.add(new TimelineItem(t)); // item app
+                    }
+                    adapter = new TimeLineAppAdapter(getContext(), timelineItems);
                     rcvTimelineApp.setLayoutManager(new LinearLayoutManager(getContext()));
                     rcvTimelineApp.setAdapter(adapter);
                 } else {
                     Log.w("TimeLineFragment", "timelineList rỗng, không set adapter");
-                    // Nếu muốn, hiển thị TextView "Không có dữ liệu"
                 }
             });
 

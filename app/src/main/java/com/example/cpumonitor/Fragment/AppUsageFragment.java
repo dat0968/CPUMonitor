@@ -111,23 +111,31 @@ public class AppUsageFragment extends Fragment {
     }
     // Lấy thông tin chi tiết ứng dụng
     private void loadAppUsageList(Context context, String range) {
+        // Lấy thời gian bắt đầu và kết thúc (milim giây)
         long[] times = getTimeRange(range);
         long startTime = times[0];
         long endTime = times[1];
 
         new Thread(() -> {
+            // Lấy UsageStatsManager để truy xuất lịch sử sử dụng app
             UsageStatsManager usm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+            // Lấy PackageManager để truy xuất thông tin ứng dụng (tên, icon, thời gian cài đặt...)
             PackageManager pm = context.getPackageManager();
-
+            // Danh sách thống kê usage stats thô từ hệ thống trong khoảng thời gian chỉ định
             List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
+            // Map lưu trữ thông tin ứng dụng theo pkg
             Map<String, AppDetail> map = new HashMap<>();
 
             if (stats != null) {
                 for (UsageStats u : stats) {
+                    // Lấy tên package của ứng dụng
                     String packageName = u.getPackageName();
+                    // Nếu trùng tên với ứng dụng hiện tại thì bỏ qua
                     if (packageName.equals(context.getPackageName())) continue;
                     try {
+                        // Lấy thông tin chi tiết của ứng dụng
                         ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
+                        // Nếu ứng dụng chưa có trong map thì thêm vô
                         if (!map.containsKey(packageName)) {
                             AppDetail detail = new AppDetail();
                             detail.packageName = packageName;
@@ -140,13 +148,18 @@ public class AppUsageFragment extends Fragment {
                     } catch (PackageManager.NameNotFoundException ignored) {}
                 }
             }
-
+            /* Tính toán tổng thời gian sử dụng ứng dụng*/
+            // Truy xuất tất cả sự kiện ứng dunng trong khoảng thời gian
             UsageEvents events = usm.queryEvents(startTime, endTime);
+            // Đối tượng tạm thời lưu từng event
             UsageEvents.Event event = new UsageEvents.Event();
+            // Lưu thời điểm app được mở theo package
             Map<String, Long> startMap = new HashMap<>();
             while (events.hasNextEvent()) {
                 events.getNextEvent(event);
+                // Lấy tên các package trong khoảng thời gian này
                 String pkg = event.getPackageName();
+                // Nó mà không có trong map thì loại bỏ
                 if (!map.containsKey(pkg)) continue;
 
                 switch (event.getEventType()) {
@@ -245,27 +258,38 @@ public class AppUsageFragment extends Fragment {
     }
 
     private void getScreenOnTime(Context context, String range) {
+        // Lấy mốc thời gian (mili giây) bắt đầu và kết thúc theo khoảng range (today, yesterday, 7days,…)
         long[] times = getTimeRange(range);
         long start = times[0];
         long end = times[1];
-
+        // Lấy UsageStatsManager để truy xuất lịch sử sử dụng app
         UsageStatsManager usm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+        // Truy vấn tất cả sự kiện sử dụng ứng dụng trong khoảng thời gian
         UsageEvents events = usm.queryEvents(start, end);
+        // đối tượng tạm thời để lưu từng event
         UsageEvents.Event event = new UsageEvents.Event();
+
+        // lưu thời điểm app được mở (foreground) theo package
         Map<String, Long> startMap = new HashMap<>();
         long totalForeground = 0;
 
         while (events.hasNextEvent()) {
+            // Lấy sự kiện tiếp theo
             events.getNextEvent(event);
+            // Package của ứng dụng
             String pkg = event.getPackageName();
 
             switch (event.getEventType()) {
                 case UsageEvents.Event.MOVE_TO_FOREGROUND:
+                    /*startMap lưu thời điểm mở app theo pkb, app chưa có trong startMap
+                    thì lưu vào bằng getTimeStamp()*/
                     if (!startMap.containsKey(pkg)) startMap.put(pkg, event.getTimeStamp());
                     break;
                 case UsageEvents.Event.MOVE_TO_BACKGROUND:
+                    // Lấy thời điểm mở app trước đó và xóa ra khỏi map
                     Long startTs = startMap.remove(pkg);
                     if (startTs != null) {
+                        // Lấy thời gian đóng trừ cho thời gian mở để lấy duration
                         long duration = event.getTimeStamp() - startTs;
                         if (duration > 1400) {
                             totalForeground += duration;
@@ -275,11 +299,11 @@ public class AppUsageFragment extends Fragment {
             }
         }
 
+        // Chuyển tổng thời gian từ ms sang giờ:phút:giây
         long seconds = totalForeground / 1000;
         long hours = seconds / 3600;
         long minutes = (seconds % 3600) / 60;
         long secs = seconds % 60;
-
         String time = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
         txtTimetouse.setText("Tổng số sử dụng(" + range + "):\n" + time);
     }
@@ -301,8 +325,6 @@ public class AppUsageFragment extends Fragment {
             getScreenOnTime(requireContext(), range);
         }
     }
-
-
     private void bindViews(View view) {
         txtTimetouse = view.findViewById(R.id.txtTimetouse);
         rvAppToUse = view.findViewById(R.id.rvAppToUse);
