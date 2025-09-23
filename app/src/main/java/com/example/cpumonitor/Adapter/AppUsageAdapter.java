@@ -43,18 +43,19 @@ public class AppUsageAdapter extends RecyclerView.Adapter<AppUsageAdapter.TimeTo
         AppDetail app = listAppItem.get(position);
         holder.txtapp_name.setText(app.appName);
         holder.img_app_icon.setImageDrawable(app.appIcon);
+        // Ngắn kéo sự kiện seekbar
         holder.skb_usage_seekbar.setEnabled(true);
         holder.skb_usage_seekbar.setOnTouchListener((v, event) -> true);
+        // Quy đổi kiểu long từ ms → h:m:s
         long sec = app.todayUsage / 1000;
         long h   = sec / 3600;
         long m   = (sec % 3600) / 60;
         long s   = sec % 60;
-
         StringBuilder sb = new StringBuilder();
         if (h > 0) sb.append(h).append("h ");
         sb.append(m).append("m ").append(s).append("s");
-
         String formatted = sb.toString().trim();
+
         holder.txt_usage_time.setText(formatted);
 
         // set SeekBar: 1 ngày = 100%

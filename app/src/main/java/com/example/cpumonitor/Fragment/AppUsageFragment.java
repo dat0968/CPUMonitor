@@ -92,14 +92,11 @@ public class AppUsageFragment extends Fragment {
                 loadingFragmentHowToUse.setVisibility(VISIBLE);
                 prefs.edit().putString("range", range).commit();
                 loadAppUsageList(getContext(), range);
-                getScreenOnTime(getContext(), range);
                 return true;
             });
             popup.show();
         });
         loadAppUsageList(getContext(), range);
-        // Get thời gian sử dụng màn hình
-        getScreenOnTime(getContext(), range);
     }
     private boolean hasUsageStatsPermission(Context context) {
         AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
@@ -164,15 +161,18 @@ public class AppUsageFragment extends Fragment {
 
                 switch (event.getEventType()) {
                     case UsageEvents.Event.MOVE_TO_FOREGROUND:
-                        if (!startMap.containsKey(pkg)) startMap.put(pkg, event.getTimeStamp());
+                        if (!startMap.containsKey(pkg)){
+                            startMap.put(pkg, event.getTimeStamp());
+                        }
                         break;
                     case UsageEvents.Event.MOVE_TO_BACKGROUND:
                         Long startTs = startMap.remove(pkg);
                         if (startTs != null) {
                             long duration = event.getTimeStamp() - startTs;
-                            if (duration > 1400) {
-                                map.get(pkg).todayUsage += duration;
-                            }
+//                            if (duration > 1000) {
+//                                map.get(pkg).todayUsage += duration;
+//                            }
+                            map.get(pkg).todayUsage += duration;
                         }
                         break;
                 }
@@ -180,19 +180,29 @@ public class AppUsageFragment extends Fragment {
 
             List<AppDetail> appDetails = new ArrayList<>(map.values());
             appDetails.removeIf(d -> d.todayUsage == 0);
-            appDetails.sort((a, b) -> Long.compare(b.todayUsage, a.todayUsage));
 
+            // Sắp xếp appDetails theo thứ tự giảm dần todayUsage
+            appDetails.sort((a, b) -> Long.compare(b.todayUsage, a.todayUsage));
             getActivity().runOnUiThread(() -> {
                 adapter = new AppUsageAdapter(getContext(), appDetails);
+
+                long total = appDetails.stream()
+                        .mapToLong(a -> a.todayUsage)
+                        .sum();
+                long sec = total / 1000;
+                long h   = sec / 3600;
+                long m   = (sec % 3600) / 60;
+                long s   = sec % 60;
+                String formatted = (h > 0 ? h + "h " : "") + m + "m " + s + "s";
+                txtTimetouse.setText("Tổng số sử dụng(" + range + "):\n" + formatted);
+
                 rvAppToUse.setLayoutManager(new LinearLayoutManager(getContext()));
                 rvAppToUse.setAdapter(adapter);
                 loadingFragmentHowToUse.setVisibility(View.GONE);
             });
-
             ReadyappDetails = false;
         }).start();
     }
-
 
     private long[] getTimeRange(String range) {
         if (range == null) range = "today";
@@ -257,59 +267,6 @@ public class AppUsageFragment extends Fragment {
         return new long[]{start, end};
     }
 
-    private void getScreenOnTime(Context context, String range) {
-        // Lấy mốc thời gian (mili giây) bắt đầu và kết thúc theo khoảng range (today, yesterday, 7days,…)
-        long[] times = getTimeRange(range);
-        long start = times[0];
-        long end = times[1];
-        // Lấy UsageStatsManager để truy xuất lịch sử sử dụng app
-        UsageStatsManager usm = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
-        // Truy vấn tất cả sự kiện sử dụng ứng dụng trong khoảng thời gian
-        UsageEvents events = usm.queryEvents(start, end);
-        // đối tượng tạm thời để lưu từng event
-        UsageEvents.Event event = new UsageEvents.Event();
-
-        // lưu thời điểm app được mở (foreground) theo package
-        Map<String, Long> startMap = new HashMap<>();
-        long totalForeground = 0;
-
-        while (events.hasNextEvent()) {
-            // Lấy sự kiện tiếp theo
-            events.getNextEvent(event);
-            // Package của ứng dụng
-            String pkg = event.getPackageName();
-
-            switch (event.getEventType()) {
-                case UsageEvents.Event.MOVE_TO_FOREGROUND:
-                    /*startMap lưu thời điểm mở app theo pkb, app chưa có trong startMap
-                    thì lưu vào bằng getTimeStamp()*/
-                    if (!startMap.containsKey(pkg)) startMap.put(pkg, event.getTimeStamp());
-                    break;
-                case UsageEvents.Event.MOVE_TO_BACKGROUND:
-                    // Lấy thời điểm mở app trước đó và xóa ra khỏi map
-                    Long startTs = startMap.remove(pkg);
-                    if (startTs != null) {
-                        // Lấy thời gian đóng trừ cho thời gian mở để lấy duration
-                        long duration = event.getTimeStamp() - startTs;
-                        if (duration > 1400) {
-                            totalForeground += duration;
-                        }
-                    }
-                    break;
-            }
-        }
-
-        // Chuyển tổng thời gian từ ms sang giờ:phút:giây
-        long seconds = totalForeground / 1000;
-        long hours = seconds / 3600;
-        long minutes = (seconds % 3600) / 60;
-        long secs = seconds % 60;
-        String time = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
-        txtTimetouse.setText("Tổng số sử dụng(" + range + "):\n" + time);
-    }
-
-
-
     public void onResume() {
         super.onResume();
         if (!hasUsageStatsPermission(requireContext())) {
@@ -322,7 +279,6 @@ public class AppUsageFragment extends Fragment {
             loadingFragmentHowToUse.setVisibility(VISIBLE);
             // Đã có quyền -> load dữ liệu
             loadAppUsageList(requireContext(), range);
-            getScreenOnTime(requireContext(), range);
         }
     }
     private void bindViews(View view) {

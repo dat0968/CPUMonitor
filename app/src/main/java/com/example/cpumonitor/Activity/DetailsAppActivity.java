@@ -50,12 +50,7 @@ public class DetailsAppActivity extends AppCompatActivity {
         Intent intent = getIntent();
         app.appName = intent.getStringExtra("appName");
         app.packageName = intent.getStringExtra("packageName");
-        app.appIcon = Drawable.createFromPath(intent.getStringExtra("appIcon"));
         app.todayUsage         = intent.getLongExtra("todayUsage", 0);
-        app.avgDailyUsage      = intent.getLongExtra("avgDailyUsage", 0);
-        app.maxDailyUsage      = intent.getLongExtra("maxDailyUsage", 0);
-        app.todayLaunchCount    = intent.getIntExtra("todayLaunchCount", 0);
-        app.continuousUsage    = intent.getLongExtra("continuousUsage", 0);
         app.installTime        = intent.getLongExtra("installTime", 0);
     }
 }

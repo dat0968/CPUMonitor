@@ -10,11 +10,11 @@ public class AppTimeLineItem {
 
     public String _package;
 
-    public AppTimeLineItem(String appName, Drawable icon, String time, long timestamp, String _package) {
+    public AppTimeLineItem(String appName, Drawable icon, String Timeline, long TimeDuration, String _package) {
         this.appName = appName;
         this.icon = icon;
-        this.Timeline = time;
-        this.TimeDuration = timestamp;
+        this.Timeline = Timeline;
+        this.TimeDuration = TimeDuration;
         this._package = _package;
     }
 }
