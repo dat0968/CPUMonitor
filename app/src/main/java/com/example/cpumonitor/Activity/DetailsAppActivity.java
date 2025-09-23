@@ -1,14 +1,9 @@
 package com.example.cpumonitor.Activity;
-
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.cpumonitor.Adapter.ViewPager_Details_App_Adapter;
@@ -21,8 +16,6 @@ public class DetailsAppActivity extends AppCompatActivity {
 
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
-    long todayUsage, avgDailyUsage, maxDailyUsage, continuousUsage, installTime;
-    int todayLaunchCount;
     private AppDetail app;
 
     @Override

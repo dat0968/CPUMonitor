@@ -1,20 +1,13 @@
 package com.example.cpumonitor.Fragment;
 
-import static android.content.Context.USAGE_STATS_SERVICE;
-import static android.content.Intent.getIntent;
-
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.cpumonitor.R;
 import com.example.cpumonitor.Viewmodel.AppDetail;
-import com.example.cpumonitor.Viewmodel.AppTimeline;
+import com.example.cpumonitor.Viewmodel.AppTimeLineItem;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -86,7 +79,7 @@ public class StatisticDetailAppFragment extends Fragment {
         UsageEvents.Event event = new UsageEvents.Event();
 
         Map<String, Long> startMap = new HashMap<>();
-        List<AppTimeline> timelineList = new ArrayList<>();
+        List<AppTimeLineItem> timelineList = new ArrayList<>();
         //SimpleDateFormat sdfHM = new SimpleDateFormat("HH:mm", Locale.getDefault());
         SimpleDateFormat sdfHM = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         PackageManager pm = requireContext().getPackageManager();
@@ -109,7 +102,7 @@ public class StatisticDetailAppFragment extends Fragment {
                             String timeStr = sdfHM.format(new Date(event.getTimeStamp()));
 
                             // Giống hệt cấu trúc timeline ở Activity tổng
-                            timelineList.add(new AppTimeline(
+                            timelineList.add(new AppTimeLineItem(
                                     name,
                                     icon,
                                     timeStr,
@@ -124,17 +117,17 @@ public class StatisticDetailAppFragment extends Fragment {
 
         // --- Gộp giống y hệt ở Activity tổng ---
         Collections.reverse(timelineList); // đảo: mới -> cũ
-        final long THRESHOLD_MS = 4000L;    // 4 giây
+        final long THRESHOLD_MS = 10000L;
 
-        List<AppTimeline> merged = new ArrayList<>();
+        List<AppTimeLineItem> merged = new ArrayList<>();
         if(!timelineList.isEmpty()){
             merged.add(timelineList.get(0));
         }
 
 
         for (int i = 1; i < timelineList.size(); i++) {
-            AppTimeline prev = merged.get(merged.size() - 1);
-            AppTimeline cur = timelineList.get(i);
+            AppTimeLineItem prev = merged.get(merged.size() - 1);
+            AppTimeLineItem cur = timelineList.get(i);
 
             boolean samePackage = prev._package != null && prev._package.equals(cur._package);
             boolean sameHHMM    = prev.Timeline != null && prev.Timeline.equals(cur.Timeline);
@@ -146,6 +139,17 @@ public class StatisticDetailAppFragment extends Fragment {
             } else {
                 merged.add(cur);
             }
+//            boolean samePackage = prev._package != null && prev._package.equals(cur._package);
+//            boolean sameHHMM = prev.Timeline != null
+//                    && prev.Timeline.substring(0,16).equals(cur.Timeline.substring(0,16));
+//            long diffDuration = Math.abs(prev.TimeDuration - cur.TimeDuration);
+//
+//            if (samePackage && sameHHMM && diffDuration <= THRESHOLD_MS) {
+//                prev.TimeDuration += cur.TimeDuration;
+//            } else {
+//                merged.add(cur);
+//            }
+
         }
 
         int todayLaunchCount = merged.size();

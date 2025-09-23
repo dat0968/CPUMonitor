@@ -1,6 +1,5 @@
 package com.example.cpumonitor.Fragment;
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 import android.annotation.SuppressLint;
@@ -30,13 +29,12 @@ import android.widget.TextView;
 
 import com.example.cpumonitor.Adapter.AppsRunningAdapter;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppItem;
+import com.example.cpumonitor.Viewmodel.AppRunningItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class BatteryFragment extends Fragment {
@@ -61,9 +59,9 @@ public class BatteryFragment extends Fragment {
         new Handler().postDelayed(this::updateAverage, 100);
     }
     private void loadRunningApps() {
-        List<AppItem> appItems = new ArrayList<>();
+        List<AppRunningItem> appRunningItems = new ArrayList<>();
         if (getContext() == null) {
-            displayApps(appItems);
+            displayApps(appRunningItems);
             return;
         }
         PackageManager pm = getContext().getPackageManager();
@@ -87,13 +85,13 @@ public class BatteryFragment extends Fragment {
                 }
                 String appName = info.loadLabel(pm).toString();
                 Drawable appIcon = info.loadIcon(pm);
-                appItems.add(new AppItem(appName, appIcon, packageName, 0L));
+                appRunningItems.add(new AppRunningItem(appName, appIcon, packageName, 0L));
                 kept++;
             } catch (Exception e) {
                 Log.d("BatteryFragment", "loadRunningApps: error handling ResolveInfo", e);
             }
         }
-        displayApps(appItems);
+        displayApps(appRunningItems);
     }
     private void logBatteryOnce() {
         // Lấy thông tin pin
@@ -118,10 +116,10 @@ public class BatteryFragment extends Fragment {
             Log.w("BatteryFragment", "Battery status intent is null!");
         }
     }
-    private void displayApps(List<AppItem> appItems) {
-        txtquantityAppRunning.setText(appItems.size() + " ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin.");
+    private void displayApps(List<AppRunningItem> appRunningItems) {
+        txtquantityAppRunning.setText(appRunningItems.size() + " ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin.");
         rvApps.setLayoutManager(new GridLayoutManager(getContext(), 3)); // 3 cột
-        rvApps.setAdapter(new AppsRunningAdapter(getContext(), appItems));
+        rvApps.setAdapter(new AppsRunningAdapter(getContext(), appRunningItems));
         if (rvApps == null) {
             Log.d("BatteryFragment", "displayApps: tblApps is null");
             return;

@@ -22,11 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cpumonitor.Adapter.TimeLineAppAdapter;
 import com.example.cpumonitor.R;
 import com.example.cpumonitor.Viewmodel.AppDetail;
-import com.example.cpumonitor.Viewmodel.AppTimeline;
-import com.example.cpumonitor.Viewmodel.TimelineItem;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.cpumonitor.Viewmodel.AppTimeLineItem;
+import com.example.cpumonitor.Viewmodel.HeaderTimelineItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,7 +37,7 @@ import java.util.Map;
 
 public class SingleTimeLineAppFragment extends Fragment {
     private AppDetail app;
-    List<AppTimeline> appTimelineList;
+    List<AppTimeLineItem> appTimelineListItem;
     TimeLineAppAdapter adapter;
     public SingleTimeLineAppFragment(AppDetail app){
         this.app = app;
@@ -61,7 +58,7 @@ public class SingleTimeLineAppFragment extends Fragment {
     }
     private void BindView(View view){
         rcvTimelineApp = view.findViewById(R.id.rcvTimelineApp);
-        appTimelineList = new ArrayList<>();
+        appTimelineListItem = new ArrayList<>();
     }
 
     private void loadSingleAppUsageEvents(String targetPkg) {
@@ -79,8 +76,8 @@ public class SingleTimeLineAppFragment extends Fragment {
             UsageEvents events = usm.queryEvents(startTime, endTime);
             UsageEvents.Event event = new UsageEvents.Event();
 
-            List<AppTimeline> timelineList = new ArrayList<>();
-            SimpleDateFormat sdfHMS = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            List<AppTimeLineItem> timelineList = new ArrayList<>();
+            SimpleDateFormat sdfHM = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
             Map<String, Long> startMap = new HashMap<>(); // Lưu thời gian mở app
 
@@ -106,9 +103,9 @@ public class SingleTimeLineAppFragment extends Fragment {
                                     ApplicationInfo ai = pm.getApplicationInfo(targetPkg, 0);
                                     String name = pm.getApplicationLabel(ai).toString();
                                     Drawable icon = pm.getApplicationIcon(ai);
-                                    String timeStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date(startTs));
+                                    String timeStr = sdfHM.format(new Date(event.getTimeStamp()));
 
-                                    timelineList.add(0, new AppTimeline(
+                                    timelineList.add(0, new AppTimeLineItem(
                                             name,
                                             icon,
                                             timeStr,
@@ -122,20 +119,58 @@ public class SingleTimeLineAppFragment extends Fragment {
                 } catch (PackageManager.NameNotFoundException ignored) {}
             }
 
+//            final long THRESHOLD_MS = 10000L;
+//            List<AppTimeLineItem> merged = new ArrayList<>();
+//            Collections.reverse(timelineList);
+//            merged.add(timelineList.get(0));
+//
+//            for (int i = 1; i < timelineList.size(); i++) {
+//                AppTimeLineItem prev = merged.get(merged.size() - 1);
+//                AppTimeLineItem cur = timelineList.get(i);
+//                // Cùng giờ cùng phút cùng một package mà không lệch nhau quá nhieefu về khoảng thì lưu lại
+//                boolean samePackage = prev._package != null && prev._package.equals(cur._package);
+//                boolean sameHHMM = prev.Timeline.substring(0, 16).equals(cur.Timeline.substring(0, 16));
+//                long diffDuration = Math.abs(prev.TimeDuration - cur.TimeDuration);
+//
+//                if (samePackage && sameHHMM && diffDuration <= THRESHOLD_MS) {
+//                    prev.TimeDuration += cur.TimeDuration;
+//                } else {
+//                    merged.add(cur);
+//                }
+//            }
+
+            Log.d("TimeLineFragment", "Total timeline items: " + timelineList.size());
+            for (AppTimeLineItem item : timelineList) {
+                Log.d("TimeLineFragment", "App: " + item.appName
+                        + ", Package: " + item._package
+                        + ", StartTime: " + item.Timeline
+                        + ", Duration(ms): " + item.TimeDuration);
+            }
             // Cập nhật RecyclerView trên UI thread
             requireActivity().runOnUiThread(() -> {
                 if (timelineList != null && !timelineList.isEmpty()) {
-                    List<TimelineItem> timelineItems = new ArrayList<>();
+                    List<HeaderTimelineItem> headerTimelineItems = new ArrayList<>();
                     String lastDate = null;
-                    for (AppTimeline t : timelineList) {
+                    List<AppTimeLineItem> currentDayItems = null;
+                    for (AppTimeLineItem t : timelineList) {
                         String currentDate = t.Timeline.substring(0, 10); // yyyy-MM-dd
+
                         if (!currentDate.equals(lastDate)) {
-                            timelineItems.add(new TimelineItem(currentDate)); // header
+                            // nếu đã có list cũ thì thêm vào header
+                            if (currentDayItems != null) {
+                                headerTimelineItems.add(new HeaderTimelineItem(lastDate, currentDayItems));
+                            }
+                            currentDayItems = new ArrayList<>();
                             lastDate = currentDate;
                         }
-                        timelineItems.add(new TimelineItem(t)); // item app
+                        currentDayItems.add(t);
                     }
-                    adapter = new TimeLineAppAdapter(getContext(), timelineItems);
+
+                    // thêm nhóm cuối cùng
+                    if (currentDayItems != null) {
+                        headerTimelineItems.add(new HeaderTimelineItem(lastDate, currentDayItems));
+                    }
+                    adapter = new TimeLineAppAdapter(getContext(), headerTimelineItems);
                     rcvTimelineApp.setLayoutManager(new LinearLayoutManager(getContext()));
                     rcvTimelineApp.setAdapter(adapter);
                 } else {

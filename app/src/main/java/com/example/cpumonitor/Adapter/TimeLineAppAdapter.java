@@ -1,118 +1,67 @@
 package com.example.cpumonitor.Adapter;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppTimeline;
-import com.example.cpumonitor.Viewmodel.TimelineItem;
+import com.example.cpumonitor.Viewmodel.HeaderTimelineItem;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
-public class TimeLineAppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final int TYPE_HEADER = 0;
-    private static final int TYPE_TIMELINE = 1;
-    private List<TimelineItem> listapp;
+public class TimeLineAppAdapter extends RecyclerView.Adapter<TimeLineAppAdapter.TimeLineAppViewHolder> {
     private Context context;
-    public TimeLineAppAdapter(Context context, List<TimelineItem> listapp) {
+    private List<HeaderTimelineItem> headerTimelineItemList;
+    public TimeLineAppAdapter(Context context, List<HeaderTimelineItem> headerTimelineItemList){
         this.context = context;
-        this.listapp = listapp;
+        this.headerTimelineItemList = headerTimelineItemList;
     }
-
-    @Override
-    public int getItemViewType(int position) {
-        return listapp.get(position).isHeader ? TYPE_HEADER : TYPE_TIMELINE;
-    }
-
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_HEADER) {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_date_header, parent, false);
-            return new HeaderViewHolder(view);
-        } else {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_app_timeline, parent, false);
-            return new TimeLineViewHolder(view);
-        }
+    public TimeLineAppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_date_header, parent, false);
+        return new TimeLineAppViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        TimelineItem item = listapp.get(position);
-        if (item.isHeader) {
-            ((HeaderViewHolder) holder).txtDate.setText(item.date);
-        }
-        else {
-            TimeLineViewHolder h = (TimeLineViewHolder) holder;
-            AppTimeline t = item.timeline;
-            try {
-                t.icon = context.getPackageManager().getApplicationIcon(t._package);
-            } catch (PackageManager.NameNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            // Hiển thị icon và tên app
-            h.imgappIcon.setImageDrawable(t.icon);
-            h.txtappName.setText(t.appName);
+    public void onBindViewHolder(@NonNull TimeLineAppViewHolder holder, int position) {
+        HeaderTimelineItem item =  headerTimelineItemList.get(position);
+        holder.txtDateHeader.setText(item.dateStart);
 
-            // Hiển thị duration dạng "2h 15m 30s"
-            long durationMs = t.TimeDuration;
-            long seconds = (durationMs / 1000) % 60;
-            long minutes = (durationMs / (1000 * 60)) % 60;
-            long hours = (durationMs / (1000 * 60 * 60));
-            String durationStr = (hours > 0 ? hours + "h " : "")
-                    + (minutes > 0 ? minutes + "m " : "")
-                    + seconds + "s";
-            h.txtusageDuration.setText(durationStr);
-
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-            try {
-                Date date = inputFormat.parse(t.Timeline); // parse từ String sang Date
-                String timeOnly = outputFormat.format(date); // lấy giờ:phút:giây
-                h.txttimelineTime.setText(timeOnly);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                h.txttimelineTime.setText(t.Timeline); // fallback nếu parse lỗi
-            }
+        holder.rcv_Item_TimelineApp.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
+        TimeLineApp_ItemAdapter adapter = new TimeLineApp_ItemAdapter(context, item.appTimelineListItem);
+        if (!headerTimelineItemList.isEmpty()) {
+            headerTimelineItemList.get(0).isExpanded = true;
         }
+        holder.rcv_Item_TimelineApp.setAdapter(adapter);
+        holder.rcv_Item_TimelineApp.setVisibility(item.isExpanded ? View.VISIBLE : View.GONE);
+        holder.txtDateHeader.setOnClickListener(v -> {
+            item.isExpanded = !item.isExpanded;
+            //notifyItemChanged(position);
+            holder.rcv_Item_TimelineApp.setVisibility(
+                    holder.rcv_Item_TimelineApp.getVisibility() == View.VISIBLE
+                            ? View.GONE : View.VISIBLE
+            );
+        });
     }
 
     @Override
     public int getItemCount() {
-        return listapp.size();
+        return headerTimelineItemList.size();
     }
-    // ViewHolder cho header
-    static class HeaderViewHolder extends RecyclerView.ViewHolder {
-        TextView txtDate;
-        HeaderViewHolder(View itemView) {
+    static class TimeLineAppViewHolder extends  RecyclerView.ViewHolder{
+        RecyclerView rcv_Item_TimelineApp;
+        TextView txtDateHeader;
+        public TimeLineAppViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtDate = itemView.findViewById(R.id.txtDateHeader);
-        }
-    }
-    public static class TimeLineViewHolder extends RecyclerView.ViewHolder {
-        ImageView imgappIcon;
-        TextView txtappName, txtusageDuration, txttimelineTime;
-        public TimeLineViewHolder(@NonNull View itemView) {
-            super(itemView);
-            imgappIcon = itemView.findViewById(R.id.imgappIcon);
-            txtappName = itemView.findViewById(R.id.txtappName);
-            txtusageDuration = itemView.findViewById(R.id.txtusageDuration);
-            txttimelineTime = itemView.findViewById(R.id.txttimelineTime);
+            this.rcv_Item_TimelineApp = itemView.findViewById((R.id.rcv_Item_TimelineApp));
+            this.txtDateHeader = itemView.findViewById(R.id.txtDateHeader);
         }
     }
 }

@@ -13,15 +13,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppItem;
+import com.example.cpumonitor.Viewmodel.AppRunningItem;
 import java.util.List;
 
 public class AppsRunningAdapter extends RecyclerView.Adapter<AppsRunningAdapter.AppRunningViewHolder> {
-    private final List<AppItem> appItems;
+    private final List<AppRunningItem> appRunningItems;
     private final Context context;
-    public AppsRunningAdapter(Context context, List<AppItem> appItems) {
+    public AppsRunningAdapter(Context context, List<AppRunningItem> appRunningItems) {
         this.context = context;
-        this.appItems = appItems;
+        this.appRunningItems = appRunningItems;
     }
 
     @NonNull
@@ -34,7 +34,7 @@ public class AppsRunningAdapter extends RecyclerView.Adapter<AppsRunningAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull AppRunningViewHolder holder, int position) {
-        AppItem item = appItems.get(position);
+        AppRunningItem item = appRunningItems.get(position);
 
         holder.ivIcon.setImageDrawable(item.icon);
         holder.tvName.setText(item.name);
@@ -48,7 +48,7 @@ public class AppsRunningAdapter extends RecyclerView.Adapter<AppsRunningAdapter.
 
     @Override
     public int getItemCount() {
-        return appItems.size();
+        return appRunningItems.size();
     }
 
     static class AppRunningViewHolder extends RecyclerView.ViewHolder{

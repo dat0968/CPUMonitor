@@ -2,13 +2,12 @@ package com.example.cpumonitor.Viewmodel;
 
 import android.graphics.drawable.Drawable;
 
-public class AppItem {
+public class AppRunningItem {
     public String name;
     public Drawable icon;
     public String packageName;
     public long timeForeground = 0L;
-    public AppItem() {}
-    public AppItem(String name, Drawable icon, String packageName, long timeForeground) {
+    public AppRunningItem(String name, Drawable icon, String packageName, long timeForeground) {
         this.name = name;
         this.icon = icon;
         this.packageName = packageName;

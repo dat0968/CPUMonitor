@@ -11,8 +11,6 @@ public class AppDetail {
     public int todayLaunchCount;  // lượt mở hôm nay
     public long continuousUsage;  // thời gian sử dụng liên tục (ms)
     public long installTime;      // thời gian cài đặt (timestamp)
-    public long lastForegroundStart;
-
     public AppDetail() {}
 
     public AppDetail(String appName, Drawable appIcon, long todayUsage,

@@ -3,8 +3,6 @@ package com.example.cpumonitor.Activity;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import static java.security.AccessController.getContext;
-
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
@@ -14,6 +12,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.FrameLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,8 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cpumonitor.Adapter.TimeLineAppAdapter;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppTimeline;
-import com.example.cpumonitor.Viewmodel.TimelineItem;
+import com.example.cpumonitor.Viewmodel.AppTimeLineItem;
+import com.example.cpumonitor.Viewmodel.HeaderTimelineItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ import java.util.Map;
 public class TimeLineAppActivity extends AppCompatActivity {
 
     RecyclerView rcvTimelineApp;
-    List<AppTimeline> appTimelineList = new ArrayList<>();
+    List<AppTimeLineItem> appTimelineListItem = new ArrayList<>();
     FrameLayout loadingOverlay;
     TimeLineAppAdapter adapter;
     private static String Range;
@@ -53,6 +52,7 @@ public class TimeLineAppActivity extends AppCompatActivity {
         loadUsageEvents();
     }
     private void loadUsageEvents() {
+        Log.e("QueryUsageEvents", "UsageEvents");
         SharedPreferences prefs = getSharedPreferences("RangeRank", Context.MODE_PRIVATE);
         Range = prefs.getString("range", "today");
         loadingOverlay.setVisibility(VISIBLE);
@@ -70,7 +70,7 @@ public class TimeLineAppActivity extends AppCompatActivity {
             // Biến tạm lưu các sự kiện
             UsageEvents.Event event = new UsageEvents.Event();
 
-            List<AppTimeline> timelineList = new ArrayList<>();
+            List<AppTimeLineItem> timelineList = new ArrayList<>();
             //SimpleDateFormat sdfHM = new SimpleDateFormat("HH:mm", Locale.getDefault());
             SimpleDateFormat sdfHM = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
@@ -87,7 +87,9 @@ public class TimeLineAppActivity extends AppCompatActivity {
                     if (launchIntent == null || pkg.equals(getPackageName())) continue;
                     if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
                         // Thêm app cùng sự kiện mở ban đầu của nó vào startMap
-                        startMap.put(pkg, event.getTimeStamp());
+                        if (!startMap.containsKey(pkg)) {
+                            startMap.put(pkg, event.getTimeStamp());
+                        }
                     } else if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
                         Long startTs = startMap.remove(pkg);
                         if (startTs != null) {
@@ -98,7 +100,7 @@ public class TimeLineAppActivity extends AppCompatActivity {
                                 Drawable icon = pm.getApplicationIcon(ai);
                                 String timeStr = sdfHM.format(new Date(event.getTimeStamp()));
 
-                                timelineList.add(new AppTimeline(
+                                timelineList.add( new AppTimeLineItem(
                                         name,
                                         icon,
                                         timeStr,
@@ -113,49 +115,62 @@ public class TimeLineAppActivity extends AppCompatActivity {
 
             // Gộp timeline (tương tự code hiện tại)
             if (!timelineList.isEmpty()) {
-                Collections.reverse(timelineList);
-                final long THRESHOLD_MS = 4000L;
-                List<AppTimeline> merged = new ArrayList<>();
-                merged.add(timelineList.get(0));
+//                Collections.reverse(timelineList);
+//                final long THRESHOLD_MS = 10000L;
+//                List<AppTimeLineItem> merged = new ArrayList<>();
+//                merged.add(timelineList.get(0));
 
-                for (int i = 1; i < timelineList.size(); i++) {
-                    AppTimeline prev = merged.get(merged.size() - 1);
-                    AppTimeline cur = timelineList.get(i);
-                    // Cùng giờ cùng phút cùng một package mà không lệch nhau quá nhieefu về khoảng thì lưu lại
-                    boolean samePackage = prev._package != null && prev._package.equals(cur._package);
-                    boolean sameHHMM = prev.Timeline != null && prev.Timeline.equals(cur.Timeline);
-                    long diffDuration = Math.abs(prev.TimeDuration - cur.TimeDuration);
-
-                    if (samePackage && sameHHMM && diffDuration <= THRESHOLD_MS) {
-                        prev.TimeDuration += cur.TimeDuration;
-                    } else {
-                        merged.add(cur);
-                    }
-                }
+//                for (int i = 1; i < timelineList.size(); i++) {
+//                    AppTimeLineItem prev = merged.get(merged.size() - 1);
+//                    AppTimeLineItem cur = timelineList.get(i);
+//                    // Cùng giờ cùng phút cùng một package mà không lệch nhau quá nhieefu về khoảng thì lưu lại
+//                    boolean samePackage = prev._package != null && prev._package.equals(cur._package);
+//                    boolean sameHHMM = prev.Timeline.substring(0, 16).equals(cur.Timeline.substring(0, 16));
+//                    long diffDuration = Math.abs(prev.TimeDuration - cur.TimeDuration);
+//
+//                    if (samePackage && sameHHMM && diffDuration <= THRESHOLD_MS) {
+//                        prev.TimeDuration += cur.TimeDuration;
+//                    } else {
+//                        merged.add(cur);
+//                    }
+//                }
 
                 runOnUiThread(() -> {
-                    // Chuyển merged List<AppTimeline> sang List<TimelineItem> có header ngày
-                    List<TimelineItem> timelineItems = new ArrayList<>();
+                    List<HeaderTimelineItem> headerTimelineItems = new ArrayList<>();
                     String lastDate = null;
+                    List<AppTimeLineItem> currentDayItems = null;
 
-                    for (AppTimeline t : merged) {
+                    for (AppTimeLineItem t : timelineList) {
                         String currentDate = t.Timeline.substring(0, 10); // yyyy-MM-dd
+
                         if (!currentDate.equals(lastDate)) {
-                            timelineItems.add(new TimelineItem(currentDate)); // header
+                            // nếu đã có list cũ thì thêm vào header
+                            if (currentDayItems != null) {
+                                headerTimelineItems.add(new HeaderTimelineItem(lastDate, currentDayItems));
+                            }
+                            currentDayItems = new ArrayList<>();
                             lastDate = currentDate;
                         }
-                        timelineItems.add(new TimelineItem(t)); // item app
+                        currentDayItems.add(t);
+                        Log.d("DEBUG_HEADER", "    App: " + t.appName + " | Time: " + t.Timeline + " | Duration: " + t.TimeDuration + " ms");
+
                     }
 
-                    adapter = new TimeLineAppAdapter(TimeLineAppActivity.this, timelineItems);
+                    // thêm nhóm cuối cùng
+                    if (currentDayItems != null) {
+                        headerTimelineItems.add(new HeaderTimelineItem(lastDate, currentDayItems));
+                    }
+
+
+                    adapter = new TimeLineAppAdapter(TimeLineAppActivity.this, headerTimelineItems);
                     rcvTimelineApp.setLayoutManager(new LinearLayoutManager(TimeLineAppActivity.this));
                     rcvTimelineApp.setAdapter(adapter);
                     loadingOverlay.setVisibility(GONE);
                 });
             } else {
                 runOnUiThread(() -> {
-                    List<TimelineItem> timelineItems = new ArrayList<>();
-                    adapter = new TimeLineAppAdapter(TimeLineAppActivity.this, timelineItems);
+                    List<HeaderTimelineItem> headerTimelineItems = new ArrayList<>();
+                    adapter = new TimeLineAppAdapter(TimeLineAppActivity.this, headerTimelineItems);
                     rcvTimelineApp.setLayoutManager(new LinearLayoutManager(TimeLineAppActivity.this));
                     rcvTimelineApp.setAdapter(adapter);
                     loadingOverlay.setVisibility(GONE);
