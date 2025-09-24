@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cpumonitor.Adapter.TimeLineAppAdapter;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppDetail;
+import com.example.cpumonitor.Viewmodel.AppItem;
 import com.example.cpumonitor.Viewmodel.AppTimeLineItem;
 import com.example.cpumonitor.Viewmodel.HeaderTimelineItem;
 
@@ -29,7 +29,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -37,10 +36,10 @@ import java.util.Locale;
 import java.util.Map;
 
 public class SingleTimeLineAppFragment extends Fragment {
-    private AppDetail app;
+    private AppItem app;
     List<AppTimeLineItem> appTimelineListItem;
     TimeLineAppAdapter adapter;
-    public SingleTimeLineAppFragment(AppDetail app){
+    public SingleTimeLineAppFragment(AppItem app){
         this.app = app;
     }
     RecyclerView rcvTimelineApp;

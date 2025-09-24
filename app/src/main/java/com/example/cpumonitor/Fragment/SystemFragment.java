@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,10 +46,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Locale;
 
 public class SystemFragment extends Fragment {
-
-    // Views
     private TextView tvInternal, tvUsed, tvFree, tvRam, tvCpuArch, tvCpuCores, tvCpuFreq,
             tvHealth, tvTemp, tvLevel, tvCapacity, tvVoltage, tvStatus, tvPlugged, tvTechnology,
             tvManufacturer, tvModel, tvBrand, tvAndroidID, tvAndroidVersion, tvApiLevel,
@@ -58,7 +56,6 @@ public class SystemFragment extends Fragment {
             tvRefreshRate, txtPixelCamera;
     private Button btnCheckCPU, btnCheckBattery;
     private MaterialButtonToggleGroup toggleGroup;
-    private FrameLayout frCamera;
     private FragmentManager fragmentManager;
 
     private final Handler handler = new Handler();
@@ -114,7 +111,6 @@ public class SystemFragment extends Fragment {
         tvSizeInches = view.findViewById(R.id.tvSizeInches);
         tvRefreshRate = view.findViewById(R.id.tvRefreshRate);
         toggleGroup = view.findViewById(R.id.cameraToggleGroup);
-        frCamera = view.findViewById(R.id.frCamera);
         txtPixelCamera = view.findViewById(R.id.txtPixelCamera);
         btnCheckCPU = view.findViewById(R.id.btnCheckCPU);
         btnCheckBattery = view.findViewById(R.id.btnCheckBattery);
@@ -205,7 +201,7 @@ public class SystemFragment extends Fragment {
         String totalRam = prefs.getString("totalRam", "0");
         if(totalRam.equals("0")){
             totalRam = memInfo.totalMem + "";
-            prefs.edit().putString("totalRam", totalRam).commit();
+            prefs.edit().putString("totalRam", totalRam).apply();
         }
         long availRam = memInfo.availMem;
         long usedRam = Long.parseLong(totalRam) - availRam;
@@ -220,11 +216,11 @@ public class SystemFragment extends Fragment {
         String totalBlocks = prefs.getString("totalBlocks", "0");
         if(blockSize.equals("0")){
             blockSize = stat.getBlockSizeLong() + "";
-            prefs.edit().putString("blockSize", blockSize).commit();
+            prefs.edit().putString("blockSize", blockSize).apply();
         }
         if(totalBlocks.equals("0")){
             totalBlocks = stat.getBlockCountLong() + "";
-            prefs.edit().putString("totalBlocks", totalBlocks).commit();
+            prefs.edit().putString("totalBlocks", totalBlocks).apply();
         }
         long totalBytes = Long.parseLong(blockSize) * Long.parseLong(totalBlocks);
         long availableBlocks = stat.getAvailableBlocksLong();
@@ -239,7 +235,7 @@ public class SystemFragment extends Fragment {
         String arch = prefs.getString("CpuArch", "Unknown");
         if(arch.equals("Unknown")){
             arch = Build.SUPPORTED_ABIS.length > 0 ? Build.SUPPORTED_ABIS[0] : "Unknown";
-            prefs.edit().putString("CpuArch", arch).commit();
+            prefs.edit().putString("CpuArch", arch).apply();
         }
         tvCpuArch.setText(arch);
 
@@ -247,7 +243,7 @@ public class SystemFragment extends Fragment {
         String cores = prefs.getString("Cores", "0");
         if(cores.equals("0")){
             cores = Runtime.getRuntime().availableProcessors() + "";
-            prefs.edit().putString("Cores", cores).commit();
+            prefs.edit().putString("Cores", cores).apply();
         }
         tvCpuCores.setText(cores + " Cores");
 
@@ -255,7 +251,7 @@ public class SystemFragment extends Fragment {
         String freqRange = prefs.getString("freqRange", "0");
         if(freqRange.equals("0")){
             freqRange = getCpuFreqRange();
-            prefs.edit().putString("freqRange", freqRange).commit();
+            prefs.edit().putString("freqRange", freqRange).apply();
         }
         tvCpuFreq.setText(freqRange);
     }
@@ -348,7 +344,7 @@ public class SystemFragment extends Fragment {
 
         // Điện áp mV -> V
         int voltage = battery.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
-        tvVoltage.setText(String.format("%.1fV", voltage / 1000f));
+        tvVoltage.setText(String.format(Locale.getDefault(), "%.1fV", voltage / 1000f));
 
         // Công nghệ pin (Li-ion,…)
         String tech = battery.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
@@ -370,7 +366,7 @@ public class SystemFragment extends Fragment {
         }
 
         double totalMah = chargeCounter / (capacityPercent / 100.0) / 1000.0;
-        tvCapacity.setText(String.format("%.0f mAh", totalMah));
+        tvCapacity.setText(String.format(Locale.getDefault(), "%.0f mAh", totalMah));
     }
 
     private String readFirstLine(File file) throws IOException {
@@ -397,12 +393,8 @@ public class SystemFragment extends Fragment {
     private void showSystem() {
         tvAndroidVersion.setText(Build.VERSION.RELEASE);
         tvApiLevel.setText(String.valueOf(Build.VERSION.SDK_INT));
+        tvSecurityPatch.setText(Build.VERSION.SECURITY_PATCH);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            tvSecurityPatch.setText(Build.VERSION.SECURITY_PATCH);
-        } else {
-            tvSecurityPatch.setText("N/A");
-        }
         new Thread(() -> {
             boolean isRooted = checkRoot();
             long uptimeMillis = SystemClock.elapsedRealtime();
@@ -436,24 +428,23 @@ public class SystemFragment extends Fragment {
         String resolution = metrics.widthPixels + " x " + metrics.heightPixels + " Pixels";
         tvResolution.setText(resolution);
 
-        String density = (int) metrics.densityDpi + " dpi";
+        String density = metrics.densityDpi + " dpi";
         tvDensity.setText(density);
 
         double widthInches = metrics.widthPixels / (double) metrics.xdpi;
         double heightInches = metrics.heightPixels / (double) metrics.ydpi;
         double diagonalInches = Math.sqrt(Math.pow(widthInches, 2) + Math.pow(heightInches, 2));
-        tvSizeInches.setText(String.format("%.2f inches", diagonalInches));
+        tvSizeInches.setText(String.format(Locale.getDefault(), "%.2f inches", diagonalInches));
 
         float refreshRate = display.getRefreshRate();
-        tvRefreshRate.setText(String.format("%.0f Hz", refreshRate));
+        tvRefreshRate.setText(String.format(Locale.getDefault(), "%.0f Hz", refreshRate));
     }
 
     private String formatDuration(long millis) {
         long seconds = millis / 1000;
         long hours = seconds / 3600;
         long minutes = (seconds % 3600) / 60;
-        long sec = seconds % 60;
-        return String.format("%02d:%02d", hours, minutes);
+        return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes);
     }
 
     private String formatSize(long size) {
@@ -461,14 +452,14 @@ public class SystemFragment extends Fragment {
         double mb = kb / 1024.0;
         double gb = mb / 1024.0;
         if (gb >= 1) {
-            return String.format("%.1f GB", gb);
+            return String.format(Locale.getDefault(), "%.1f GB", gb);
         } else if (mb >= 1) {
-            return String.format("%.1f MB", mb);
+            return String.format(Locale.getDefault(), "%.1f MB", mb);
         } else {
-            return String.format("%.1f KB", kb);
+            return String.format(Locale.getDefault(), "%.1f KB", kb);
         }
     }
-    //
+
     private final Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {

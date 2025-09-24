@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppDetail;
+import com.example.cpumonitor.Viewmodel.AppItem;
 import com.example.cpumonitor.Viewmodel.AppTimeLineItem;
 
 import java.text.DateFormat;
@@ -27,7 +27,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +35,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class StatisticDetailAppFragment extends Fragment {
-    private AppDetail app;
+    private AppItem app;
 
-    public StatisticDetailAppFragment(AppDetail app) {
+    public StatisticDetailAppFragment(AppItem app) {
         this.app = app;
     }
 

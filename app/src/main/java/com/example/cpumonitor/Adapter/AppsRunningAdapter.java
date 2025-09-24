@@ -1,5 +1,4 @@
 package com.example.cpumonitor.Adapter;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,15 +12,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppRunningItem;
+import com.example.cpumonitor.Viewmodel.AppItem;
 import java.util.List;
 
 public class AppsRunningAdapter extends RecyclerView.Adapter<AppsRunningAdapter.AppRunningViewHolder> {
-    private final List<AppRunningItem> appRunningItems;
+    private final List<AppItem> AppItems;
     private final Context context;
-    public AppsRunningAdapter(Context context, List<AppRunningItem> appRunningItems) {
+    public AppsRunningAdapter(Context context, List<AppItem> AppItems) {
         this.context = context;
-        this.appRunningItems = appRunningItems;
+        this.AppItems = AppItems;
     }
 
     @NonNull
@@ -34,11 +33,10 @@ public class AppsRunningAdapter extends RecyclerView.Adapter<AppsRunningAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull AppRunningViewHolder holder, int position) {
-        AppRunningItem item = appRunningItems.get(position);
-
-        holder.ivIcon.setImageDrawable(item.icon);
-        holder.tvName.setText(item.name);
-
+        AppItem item = AppItems.get(position);
+        holder.ivIcon.setImageDrawable(item.appIcon);
+        holder.tvName.setText(item.appName);
+        // Chuyển hướng tới trang thông tin ứng dụng trong cài đặt
         holder.btnStop.setOnClickListener(v -> {
             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             intent.setData(Uri.parse("package:" + item.packageName));
@@ -48,14 +46,13 @@ public class AppsRunningAdapter extends RecyclerView.Adapter<AppsRunningAdapter.
 
     @Override
     public int getItemCount() {
-        return appRunningItems.size();
+        return AppItems.size();
     }
 
     static class AppRunningViewHolder extends RecyclerView.ViewHolder{
         ImageView ivIcon;
         TextView tvName;
         Button btnStop;
-
         public AppRunningViewHolder(@NonNull View itemView) {
             super(itemView);
             ivIcon = itemView.findViewById(R.id.ivIcon);

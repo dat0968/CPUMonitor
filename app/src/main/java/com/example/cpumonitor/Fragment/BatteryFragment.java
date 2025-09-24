@@ -1,7 +1,6 @@
 package com.example.cpumonitor.Fragment;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,7 +27,7 @@ import android.widget.TextView;
 
 import com.example.cpumonitor.Adapter.AppsRunningAdapter;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppRunningItem;
+import com.example.cpumonitor.Viewmodel.AppItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BatteryFragment extends Fragment {
-    private TextView tvHealth, tvTemp, tvLevel, tvCapacity, tvVoltage, tvStatus, txtTemperatureAVG, txtBatteryLevelAVG, txtquantityAppRunning;
+    private TextView tvHealth, tvTemp, tvLevel, tvCapacity, tvVoltage, tvStatus,
+            txtTemperatureAVG, txtBatteryLevelAVG, txtquantityAppRunning;
     private RecyclerView rvApps;
     private static final String PREFS_NAME = "BatteryLogs";
     private static final String LOG_KEY = "BatteryData";
@@ -53,15 +52,15 @@ public class BatteryFragment extends Fragment {
         loadRunningApps();
         // Hiển thị thông tin chi tiết pin
         showBatteryDetail();
-        //
+        // Log trước một lần để kịp cập nhật updateAverage
         logBatteryOnce();
         // Update averages on app start
         new Handler().postDelayed(this::updateAverage, 100);
     }
     private void loadRunningApps() {
-        List<AppRunningItem> appRunningItems = new ArrayList<>();
+        List<AppItem> appItems = new ArrayList<>();
         if (getContext() == null) {
-            displayApps(appRunningItems);
+            displayApps(appItems);
             return;
         }
         PackageManager pm = getContext().getPackageManager();
@@ -69,7 +68,6 @@ public class BatteryFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
-        int kept = 0;
         for (ResolveInfo info : resolveInfos) {
             try {
                 ApplicationInfo appInfo = info.activityInfo.applicationInfo;
@@ -85,13 +83,12 @@ public class BatteryFragment extends Fragment {
                 }
                 String appName = info.loadLabel(pm).toString();
                 Drawable appIcon = info.loadIcon(pm);
-                appRunningItems.add(new AppRunningItem(appName, appIcon, packageName, 0L));
-                kept++;
+                appItems.add(new AppItem(appName, appIcon, packageName));
             } catch (Exception e) {
                 Log.d("BatteryFragment", "loadRunningApps: error handling ResolveInfo", e);
             }
         }
-        displayApps(appRunningItems);
+        displayApps(appItems);
     }
     private void logBatteryOnce() {
         // Lấy thông tin pin
@@ -116,7 +113,7 @@ public class BatteryFragment extends Fragment {
             Log.w("BatteryFragment", "Battery status intent is null!");
         }
     }
-    private void displayApps(List<AppRunningItem> appRunningItems) {
+    private void displayApps(List<AppItem> appRunningItems) {
         txtquantityAppRunning.setText(appRunningItems.size() + " ứng dụng có thể tạm dừng để ngăn chặn tiêu hao pin.");
         rvApps.setLayoutManager(new GridLayoutManager(getContext(), 3)); // 3 cột
         rvApps.setAdapter(new AppsRunningAdapter(getContext(), appRunningItems));
@@ -174,8 +171,8 @@ public class BatteryFragment extends Fragment {
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                sumBattery += obj.getDouble("battery");
-                sumTemp += obj.getDouble("temp");
+                sumBattery += (float) obj.getDouble("battery");
+                sumTemp += (float) obj.getDouble("temp");
             }
 
             int count = arr.length();
@@ -294,6 +291,7 @@ public class BatteryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        handler.removeCallbacks(updateRunnable);
         handler.post(updateRunnable);
     }
 

@@ -7,11 +7,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.cpumonitor.Fragment.StatisticDetailAppFragment;
 import com.example.cpumonitor.Fragment.SingleTimeLineAppFragment;
-import com.example.cpumonitor.Viewmodel.AppDetail;
+import com.example.cpumonitor.Viewmodel.AppItem;
 
 public class ViewPager_Details_App_Adapter extends FragmentStateAdapter {
-    private AppDetail app;
-    public ViewPager_Details_App_Adapter(@NonNull FragmentActivity fa, AppDetail app) {
+    private AppItem app;
+    public ViewPager_Details_App_Adapter(@NonNull FragmentActivity fa, AppItem app) {
         super(fa);
         this.app = app;
     }

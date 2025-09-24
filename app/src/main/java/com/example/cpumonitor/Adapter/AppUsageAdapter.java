@@ -16,17 +16,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cpumonitor.Activity.DetailsAppActivity;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppDetail;
+import com.example.cpumonitor.Viewmodel.AppItem;
 
 import java.util.List;
 
 public class AppUsageAdapter extends RecyclerView.Adapter<AppUsageAdapter.TimeToUseAppViewHolder> {
     private  Context context;
-    private List<AppDetail> listAppItem;
+    private List<AppItem> listAppItem;
     private long maxUsage = 0;
     private static final int ONE_DAY_MS = 24 * 60 * 60 * 1000; // 86_400_000
 
-    public AppUsageAdapter(Context context, List<AppDetail> listAppItem) {
+    public AppUsageAdapter(Context context, List<AppItem> listAppItem) {
         this.context = context;
         this.listAppItem = listAppItem;
     }
@@ -40,7 +40,7 @@ public class AppUsageAdapter extends RecyclerView.Adapter<AppUsageAdapter.TimeTo
 
     @Override
     public void onBindViewHolder(@NonNull TimeToUseAppViewHolder holder, int position) {
-        AppDetail app = listAppItem.get(position);
+        AppItem app = listAppItem.get(position);
         holder.txtapp_name.setText(app.appName);
         holder.img_app_icon.setImageDrawable(app.appIcon);
         // Ngắn kéo sự kiện seekbar

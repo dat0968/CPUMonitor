@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,12 +21,12 @@ import com.example.cpumonitor.R;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Locale;
 
 public class CPUFragment extends Fragment {
 
     private TextView txtModel, txtLoi, txtClock, txtpercentCPU;
     private GridLayout gridCpu;
-    private TableLayout tblApps;
     private final Handler handler = new Handler();
     private SharedPreferences prefs;
 
@@ -58,6 +57,7 @@ public class CPUFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Remove Runnable cũ => tránh UI cập nhật nhiều lần không cần thiết
         handler.removeCallbacks(updateRunnable);
         // Runnable đã được đưa vào hàng đợi của Handler
         handler.post(updateRunnable); // bắt đầu cập nhật
@@ -95,7 +95,7 @@ public class CPUFragment extends Fragment {
             String max = prefs.getString("maxVal_" + i, "0");
             if(max.equals("0")){
                 max = readCpuMaxFreqValue(i) + "";
-                prefs.edit().putString("maxVal_" + i, max).commit();
+                prefs.edit().putString("maxVal_" + i, max).apply();
             }
 
             if (cur > 0 && Long.parseLong(max) > 0) {
@@ -107,7 +107,7 @@ public class CPUFragment extends Fragment {
 
         if (validCores > 0) {
             double avg = sumPercent / validCores;
-            txtpercentCPU.setText(String.format("Loading: %.1f%%", avg));
+            txtpercentCPU.setText(String.format(Locale.getDefault(), "Loading: %.1f%%", avg));
         } else {
             txtpercentCPU.setText("Loading: N/A");
         }
@@ -121,7 +121,7 @@ public class CPUFragment extends Fragment {
         String model = prefs.getString("Model", "0");
         if(model.equals("0")){
             model = Build.HARDWARE;
-            prefs.edit().putString("Model", model).commit();
+            prefs.edit().putString("Model", model).apply();
         }
         txtModel.setText(model);
 
@@ -129,15 +129,15 @@ public class CPUFragment extends Fragment {
         String cores = prefs.getString("Cores", "0");
         if(cores.equals("0")){
             cores = Runtime.getRuntime().availableProcessors() + "";
-            prefs.edit().putString("Cores", cores).commit();
+            prefs.edit().putString("Cores", cores).apply();
         }
-        txtLoi.setText(String.valueOf(cores));
+        txtLoi.setText(cores);
 
         // Tần số CPU đầu tiên (MHz)
         String freq = prefs.getString("freqRange", "0");
         if(freq.equals("0")){
             freq = readCpuMaxFreqMHz(0);
-            prefs.edit().putString("freqRange", freq).commit();
+            prefs.edit().putString("freqRange", freq).apply();
         }
         txtClock.setText(freq);
 
@@ -148,7 +148,7 @@ public class CPUFragment extends Fragment {
             String maxVal = prefs.getString("maxVal_" + i, "0");
             if(maxVal.equals("0")){
                 maxVal = readCpuMaxFreqValue(i) + ""; // kHz
-                prefs.edit().putString("maxVal_" + i, maxVal);
+                prefs.edit().putString("maxVal_" + i, maxVal).apply();
             }
 
             String curFreq = formatMHz(curVal);
@@ -157,7 +157,7 @@ public class CPUFragment extends Fragment {
             String percent = "N/A";
             if (curVal > 0 && Long.parseLong(maxVal) > 0) {
                 double p = (curVal * 1.0 / Long.parseLong(maxVal)) * 100.0;
-                percent = String.format("%.1f%%", p);
+                percent = String.format(Locale.getDefault(), "%.1f%%", p);
             }
 
             TextView tv = new TextView(getContext());
@@ -208,7 +208,7 @@ public class CPUFragment extends Fragment {
     private String formatMHz(long khz) {
         if (khz <= 0) return "N/A";
         double mhz = khz / 1000.0;
-        return String.format("%.0f MHz", mhz);
+        return String.format(Locale.getDefault(), "%.0f MHz", mhz);
     }
 
     // Dùng cho txtClock

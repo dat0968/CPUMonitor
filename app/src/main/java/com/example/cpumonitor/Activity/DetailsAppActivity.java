@@ -1,33 +1,27 @@
 package com.example.cpumonitor.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.example.cpumonitor.Adapter.ViewPager_Details_App_Adapter;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppDetail;
+import com.example.cpumonitor.Viewmodel.AppItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class DetailsAppActivity extends AppCompatActivity {
-
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
-    private AppDetail app;
+    private AppItem app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details_app);
-        app = new AppDetail();
+        app = new AppItem();
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
         MappingData();
-
-
 
         // Adapter cho ViewPager2
         ViewPager_Details_App_Adapter adapter = new ViewPager_Details_App_Adapter(this, app);

@@ -33,13 +33,12 @@ import android.widget.TextView;
 import com.example.cpumonitor.Activity.TimeLineAppActivity;
 import com.example.cpumonitor.Adapter.AppUsageAdapter;
 import com.example.cpumonitor.R;
-import com.example.cpumonitor.Viewmodel.AppDetail;
+import com.example.cpumonitor.Viewmodel.AppItem;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class AppUsageFragment extends Fragment {
@@ -121,7 +120,7 @@ public class AppUsageFragment extends Fragment {
             // Danh sách thống kê usage stats thô từ hệ thống trong khoảng thời gian chỉ định
             List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, startTime, endTime);
             // Map lưu trữ thông tin ứng dụng theo pkg
-            Map<String, AppDetail> map = new HashMap<>();
+            Map<String, AppItem> map = new HashMap<>();
 
             if (stats != null) {
                 for (UsageStats u : stats) {
@@ -134,7 +133,7 @@ public class AppUsageFragment extends Fragment {
                         ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
                         // Nếu ứng dụng chưa có trong map thì thêm vô
                         if (!map.containsKey(packageName)) {
-                            AppDetail detail = new AppDetail();
+                            AppItem detail = new AppItem();
                             detail.packageName = packageName;
                             detail.appName = pm.getApplicationLabel(ai).toString();
                             detail.appIcon = pm.getApplicationIcon(ai);
@@ -178,15 +177,15 @@ public class AppUsageFragment extends Fragment {
                 }
             }
 
-            List<AppDetail> appDetails = new ArrayList<>(map.values());
-            appDetails.removeIf(d -> d.todayUsage == 0);
+            List<AppItem> appItems = new ArrayList<>(map.values());
+            appItems.removeIf(d -> d.todayUsage == 0);
 
             // Sắp xếp appDetails theo thứ tự giảm dần todayUsage
-            appDetails.sort((a, b) -> Long.compare(b.todayUsage, a.todayUsage));
+            appItems.sort((a, b) -> Long.compare(b.todayUsage, a.todayUsage));
             getActivity().runOnUiThread(() -> {
-                adapter = new AppUsageAdapter(getContext(), appDetails);
+                adapter = new AppUsageAdapter(getContext(), appItems);
 
-                long total = appDetails.stream()
+                long total = appItems.stream()
                         .mapToLong(a -> a.todayUsage)
                         .sum();
                 long sec = total / 1000;
