@@ -134,12 +134,13 @@ public class AppUsageFragment extends Fragment {
                         ApplicationInfo ai = pm.getApplicationInfo(packageName, 0);
                         // Nếu ứng dụng chưa có trong map thì thêm vô
                         if (!map.containsKey(packageName)) {
-                            AppDetail detail = new AppDetail();
-                            detail.packageName = packageName;
-                            detail.appName = pm.getApplicationLabel(ai).toString();
-                            detail.appIcon = pm.getApplicationIcon(ai);
-                            detail.installTime = pm.getPackageInfo(packageName, 0).firstInstallTime;
-                            detail.todayUsage = 0;
+                            AppDetail detail = new AppDetail(){{
+                                packageName = packageName;
+                                appName = pm.getApplicationLabel(ai).toString();
+                                appIcon = pm.getApplicationIcon(ai);
+                                installTime = pm.getPackageInfo(packageName, 0).firstInstallTime;
+                                todayUsage = 0;
+                            }};
                             map.put(packageName, detail);
                         }
                     } catch (PackageManager.NameNotFoundException ignored) {}

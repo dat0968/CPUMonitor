@@ -13,4 +13,5 @@ public class AppRunningItem {
         this.packageName = packageName;
         this.timeForeground = timeForeground;
     }
+    public AppRunningItem(){}
 }

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cpumonitor.Adapter.TimeLineAppAdapter;
+import com.example.cpumonitor.Mapper.AppTimeLineItemMapper;
 import com.example.cpumonitor.R;
 import com.example.cpumonitor.Viewmodel.AppDetail;
 import com.example.cpumonitor.Viewmodel.AppTimeLineItem;
@@ -77,62 +78,21 @@ public class SingleTimeLineAppFragment extends Fragment {
         UsageEvents events = usm.queryEvents(start, end);
         UsageEvents.Event event = new UsageEvents.Event();
 
-        Map<String, Long> startMap = new HashMap<>();
         List<AppTimeLineItem> timelineList = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         PackageManager pm = requireContext().getPackageManager();
-
+        long startTime = -1;
         while (events.hasNextEvent()) {
             events.getNextEvent(event);
             if (!pkgName.equals(event.getPackageName())) continue;
 
             if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                startMap.put(pkgName, event.getTimeStamp());
+                startTime = event.getTimeStamp();
             } else if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND) {
-                Long startTs = startMap.remove(pkgName);
-                if (startTs != null) {
-                    long duration = event.getTimeStamp() - startTs;
-//                    if (duration > 1400) {
-//                        try {
-//                            ApplicationInfo ai = pm.getApplicationInfo(pkgName, 0);
-//                            String name = pm.getApplicationLabel(ai).toString();
-//                            Drawable icon = pm.getApplicationIcon(ai);
-//                            String timeStr = sdf.format(new Date(startTs)); // start time của session
-//
-//                            timelineList.add(new AppTimeLineItem(
-//                                    name, icon, timeStr, duration, pkgName
-//                            ));
-//                        } catch (PackageManager.NameNotFoundException ignored) {
-//                        }
-//                    }
-                    try {
-                        ApplicationInfo ai = pm.getApplicationInfo(pkgName, 0);
-                        String name = pm.getApplicationLabel(ai).toString();
-                        Drawable icon = pm.getApplicationIcon(ai);
-                        String timeStr = sdf.format(new Date(startTs)); // start time của session
-
-                        timelineList.add(new AppTimeLineItem(
-                                name, icon, timeStr, duration, pkgName
-                        ));
-                    } catch (PackageManager.NameNotFoundException ignored) {
-                    }
-                }
+                long endTime = event.getTimeStamp();
+                timelineList.add(AppTimeLineItemMapper.fromEventData(pm, pkgName, startTime, endTime));
             }
         }
-        StringBuilder sb = new StringBuilder("timelineList:\n");
-        for (AppTimeLineItem item : timelineList) {
-            long durationMs = item.TimeDuration;
-            long hours = durationMs / 3600000;
-            long minutes = (durationMs % 3600000) / 60000;
-            long seconds = (durationMs % 60000) / 1000;
-
-            sb.append("App=").append(item._package)
-                    .append(", Timeline=").append(item.Timeline)
-                    .append(", Duration=").append(hours).append("h ")
-                    .append(minutes).append("m ").append(seconds).append("s")
-                    .append("\n");
-        }
-        Log.d("timelineList", sb.toString());
         // ===== Gộp các session gần nhau =====
         final long THRESHOLD_GAP = 15_000L; // 15 giây
 
@@ -153,7 +113,7 @@ public class SingleTimeLineAppFragment extends Fragment {
             try {
                 prevEndTime = sdf.parse(prev.Timeline).getTime() + prev.TimeDuration;
             } catch (ParseException e) {
-                e.printStackTrace();
+                Log.e("TimeLineParser", "Lỗi parse thời gian prev.Timeline = " + prev.Timeline, e);
             }
             long curStartTime = 0;
             try {
@@ -170,17 +130,8 @@ public class SingleTimeLineAppFragment extends Fragment {
                 merged.add(cur);
             }
         }
-        Log.d("DEBUG_MERGED", "======= merged timeline =======");
-        for (AppTimeLineItem item : merged) {
-            Log.d("DEBUG_MERGED",
-                    "App: " + item._package +
-                            " | Timeline(start): " + item.Timeline +
-                            " | Duration(ms): " + item.TimeDuration +
-                            " | Duration(hms): " +
-                            (item.TimeDuration / 3600000) + "h " +
-                            ((item.TimeDuration / 60000) % 60) + "m " +
-                            ((item.TimeDuration / 1000) % 60) + "s");
-        }
+
+
         requireActivity().runOnUiThread(() -> {
             if (merged != null && !merged.isEmpty()) {
                 List<HeaderTimelineItem> headerTimelineItems = new ArrayList<>();

@@ -1,7 +1,6 @@
 package com.example.cpumonitor.Fragment;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +9,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.drawable.Drawable;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -18,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.cpumonitor.Adapter.AppsRunningAdapter;
+import com.example.cpumonitor.Mapper.AppRunningItemMapper;
 import com.example.cpumonitor.R;
 import com.example.cpumonitor.Viewmodel.AppRunningItem;
 
@@ -69,12 +67,10 @@ public class BatteryFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
-        int kept = 0;
+
         for (ResolveInfo info : resolveInfos) {
             try {
                 ApplicationInfo appInfo = info.activityInfo.applicationInfo;
-//                boolean isSystemApp = ((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
-//                        || ((appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0);
                 boolean isSystemApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
                 if (isSystemApp) {
                     continue;
@@ -83,10 +79,8 @@ public class BatteryFragment extends Fragment {
                 if (packageName.equals(getContext().getPackageName())) {
                     continue;
                 }
-                String appName = info.loadLabel(pm).toString();
-                Drawable appIcon = info.loadIcon(pm);
-                appRunningItems.add(new AppRunningItem(appName, appIcon, packageName, 0L));
-                kept++;
+                AppRunningItem item = AppRunningItemMapper.fromPackageInfo(pm, packageName);
+                appRunningItems.add(item);
             } catch (Exception e) {
                 Log.d("BatteryFragment", "loadRunningApps: error handling ResolveInfo", e);
             }
@@ -174,8 +168,8 @@ public class BatteryFragment extends Fragment {
 
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                sumBattery += obj.getDouble("battery");
-                sumTemp += obj.getDouble("temp");
+                sumBattery += (float) obj.getDouble("battery");
+                sumTemp += (float) obj.getDouble("temp");
             }
 
             int count = arr.length();

@@ -17,4 +17,5 @@ public class AppTimeLineItem {
         this.TimeDuration = TimeDuration;
         this._package = _package;
     }
+    public AppTimeLineItem(){}
 }
